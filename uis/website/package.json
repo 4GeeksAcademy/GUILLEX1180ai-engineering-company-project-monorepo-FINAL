@@ -1,0 +1,12 @@
+{
+  "name": "trackflow-website",
+  "version": "1.0.0",
+  "description": "TrackFlow — Sitio web corporativo y formulario de aplicación logística",
+  "scripts": {
+    "start": "npx serve .",
+    "dev": "npx serve ."
+  },
+  "keywords": ["trackflow", "logistics", "ecommerce"],
+  "license": "UNLICENSED",
+  "private": true
+}
