@@ -43,6 +43,7 @@
   "include": [
     "types/**/*.ts",
     "utils/**/*.ts",
+    "domain/**/*.ts",
     "**/*.ts"
   ],
   "exclude": [
