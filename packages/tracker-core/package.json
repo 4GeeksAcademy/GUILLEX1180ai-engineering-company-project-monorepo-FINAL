@@ -1,0 +1,22 @@
+{
+  "name": "tracker-core",
+  "version": "1.0.0",
+  "description": "Lógica pura de backend para el Talent Pipeline Tracker: filtrado, ordenamiento, búsqueda, agregaciones y validaciones",
+  "private": true,
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "echo \"No tests configured yet\" && exit 0"
+  },
+  "keywords": [
+    "tracker",
+    "pipeline",
+    "candidates",
+    "typescript"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^7.0.2"
+  }
+}
