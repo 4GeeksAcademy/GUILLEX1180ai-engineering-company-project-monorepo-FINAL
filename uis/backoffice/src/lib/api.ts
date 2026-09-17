@@ -1,0 +1,104 @@
+// ──────────────────────────────────────────────
+// API Service — Backoffice TrackFlow
+// Fetch nativo centralizado (sin axios)
+// ──────────────────────────────────────────────
+
+import type {
+  Lead,
+  LeadFormData,
+  LeadPatchPayload,
+  Note,
+  NotePostPayload,
+  ApiResponse,
+} from "./types";
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
+
+/* ─── Helper genérico ─── */
+
+async function fetchAPI<T>(
+  path: string,
+  options?: RequestInit
+): Promise<T> {
+  const url = `${API_BASE}${path}`;
+  const res = await fetch(url, {
+    headers: { "Content-Type": "application/json" },
+    ...options,
+  });
+
+  if (!res.ok) {
+    const body = await res.text().catch(() => "");
+    throw new Error(`HTTP ${res.status} — ${res.statusText}${body ? `: ${body}` : ""}`);
+  }
+
+  if (res.status === 204) return undefined as unknown as T; // DELETE
+  return res.json() as Promise<T>;
+}
+
+/* ─── Normalizadores de respuesta ─── */
+
+function unwrapArray<T>(raw: T[] | ApiResponse<T>): T[] {
+  if (Array.isArray(raw)) return raw;
+  if (raw && typeof raw === "object" && "results" in raw && Array.isArray((raw as ApiResponse<T>).results)) return (raw as ApiResponse<T>).results!;
+  if (raw && typeof raw === "object" && "data" in raw) {
+    const d = (raw as ApiResponse<T>).data;
+    return Array.isArray(d) ? d : (d !== undefined ? [d] : []);
+  }
+  return [];
+}
+
+function unwrapSingle<T>(raw: T | ApiResponse<T>): T | null {
+  if (raw && typeof raw === "object" && "data" in raw) return (raw as ApiResponse<T>).data as T;
+  return raw as T;
+}
+
+/* ─── Endpoints ─── */
+
+export async function getAllLeads(): Promise<Lead[]> {
+  const raw = await fetchAPI<Lead[] | ApiResponse<Lead>>("/records?limit=500");
+  return unwrapArray(raw);
+}
+
+export async function getLeadById(id: number): Promise<Lead | null> {
+  const raw = await fetchAPI<Lead | ApiResponse<Lead>>(`/records/${id}`);
+  return unwrapSingle(raw);
+}
+
+export async function createLead(data: LeadFormData): Promise<Lead> {
+  return fetchAPI<Lead>("/records", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+export async function updateLead(id: number, data: LeadFormData): Promise<Lead> {
+  return fetchAPI<Lead>(`/records/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+}
+
+export async function patchLead(id: number, data: LeadPatchPayload): Promise<Lead> {
+  return fetchAPI<Lead>(`/records/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(data),
+  });
+}
+
+export async function getNotes(leadId: number): Promise<Note[]> {
+  const raw = await fetchAPI<Note[] | ApiResponse<Note>>(`/records/${leadId}/notes`);
+  return unwrapArray(raw);
+}
+
+export async function addNote(leadId: number, payload: NotePostPayload): Promise<Note> {
+  return fetchAPI<Note>(`/records/${leadId}/notes`, {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function deleteNote(leadId: number, noteId: number): Promise<void> {
+  await fetchAPI<void>(`/records/${leadId}/notes/${noteId}`, {
+    method: "DELETE",
+  });
+}

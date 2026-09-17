@@ -1,10 +1,42 @@
-# `services` folder
+# `services` — Backend Services
 
-This folder contains **all the backend services** (APIs and background workers) related to the company for the cross-functional AI Engineering project.
+This folder contains **all the backend services** (APIs and background workers) for TrackFlow Tech.
 
-Each subfolder inside `services/` must correspond to **one specific service** (for example: `admin-api`, `data-processor-worker`) and include its own technical and functional documentation.
+## Structure
 
-- **Main purpose**: to centralize all the backend logic, APIs, and queue consumers that support the company's use cases.
-- **Recommendation**: document in this file (or in sub-READMEs) the services you add, their objective, the technology used, and how to run them.
+```
+services/
+├── README.md                          # This file
+├── README.es.md                       # Spanish version
+└── tracker-api/                       # Central FastAPI service
+    ├── requirements.txt               # Python dependencies
+    ├── .env.example                   # Environment variables template
+    └── app/
+        ├── __init__.py
+        ├── main.py                    # FastAPI app entry point
+        ├── core/
+        │   ├── __init__.py
+        │   └── config.py             # Pydantic Settings
+        ├── models/
+        │   ├── __init__.py
+        │   └── lead.py               # Lead model
+        │   └── candidate.py          # Candidate model
+        └── routers/
+            ├── __init__.py
+            ├── leads.py              # /api/v1/leads endpoints
+            └── candidates.py         # /api/v1/candidates endpoints
+```
 
-> _Spanish version: [README.es.md](./README.es.md)._
+## Services
+
+| Service | Description | Status |
+|---------|-------------|--------|
+| `tracker-api` | Centralized FastAPI for TrackFlow ecosystem | 🟡 Scaffold |
+
+## How to run
+
+```bash
+cd services/tracker-api
+pip install -r requirements.txt
+uvicorn app.main:app --reload
+```

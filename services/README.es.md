@@ -1,8 +1,42 @@
-# Carpeta `services`
+# `services` — Servicios Backend
 
-Esta carpeta contiene **todos los servicios backend** (APIs y workers en segundo plano) relacionados con la compañía para el proyecto transversal de AI Engineering.
+Esta carpeta contiene **todos los servicios backend** (APIs y workers) de TrackFlow Tech.
 
-Cada subcarpeta dentro de `services/` debe corresponder a **un servicio concreto** (por ejemplo `admin-api`, `data-processor-worker`) e incluir su propia documentación técnica y funcional.
+## Estructura
 
-- **Propósito principal**: centralizar toda la lógica backend, APIs y consumidores de colas que dan soporte a los casos de uso de la compañía.
-- **Recomendación**: documenta en este archivo (o en sub-READMEs) los servicios que vayas añadiendo, su objetivo, tecnología usada y cómo ejecutarlos.
+```
+services/
+├── README.md
+├── README.es.md
+└── tracker-api/                       # Servicio FastAPI centralizado
+    ├── requirements.txt
+    ├── .env.example
+    └── app/
+        ├── __init__.py
+        ├── main.py                    # Punto de entrada FastAPI
+        ├── core/
+        │   ├── __init__.py
+        │   └── config.py             # Pydantic Settings
+        ├── models/
+        │   ├── __init__.py
+        │   └── ...
+        └── routers/
+            ├── __init__.py
+            └── ...
+```
+
+## Servicios
+
+| Servicio | Descripción | Estado |
+|----------|-------------|--------|
+| `tracker-api` | FastAPI centralizado para el ecosistema TrackFlow | 🟡 Scaffold inicial |
+
+## Cómo ejecutar
+
+```bash
+cd services/tracker-api
+pip install -r requirements.txt
+uvicorn app.main:app --reload
+```
+
+> _English version: [README.md](./README.md)._
