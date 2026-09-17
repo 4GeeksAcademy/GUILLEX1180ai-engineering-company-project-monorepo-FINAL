@@ -10,7 +10,7 @@ import {
 } from "@/lib/types";
 
 interface Props {
-  candidateId: number;
+  candidateId: string;
   initialStatus: CandidateStatus;
   initialStage: CandidateStage;
   /** Callback para actualizar el candidato en el estado del padre */
@@ -32,10 +32,9 @@ export default function StatusStageControl({
     setSaving("status");
     setMsg(null);
     try {
-      await patchCandidate(String(candidateId), { status: newStatus });
+      await patchCandidate(candidateId, { status: newStatus });
       setStatus(newStatus);
       onUpdate({ status: newStatus });
-      setMsg({ type: "ok", msg: "Estado actualizado." } as never);
       setMsg({ type: "ok", text: "Estado actualizado." });
     } catch (err) {
       setStatus(initialStatus); // revertir
@@ -49,7 +48,7 @@ export default function StatusStageControl({
     setSaving("stage");
     setMsg(null);
     try {
-      await patchCandidate(String(candidateId), { stage: newStage });
+      await patchCandidate(candidateId, { stage: newStage });
       setStage(newStage);
       onUpdate({ stage: newStage });
       setMsg({ type: "ok", text: "Etapa actualizada." });

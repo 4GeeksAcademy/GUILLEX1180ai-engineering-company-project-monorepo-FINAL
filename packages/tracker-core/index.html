@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <title>Tracker Core — Pruebas interactivas</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
@@ -41,6 +44,7 @@
             <option value="interview">Interview</option>
             <option value="hired">Hired</option>
             <option value="rejected">Rejected</option>
+            <option value="on_hold">On Hold</option>
           </select>
         </div>
         <div>
@@ -49,8 +53,11 @@
             <option value="">Todas</option>
             <option value="new">New</option>
             <option value="review">Review</option>
+            <option value="phone_screen">Phone Screen</option>
             <option value="technical">Technical</option>
-            <option value="offer">Offer</option>
+            <option value="final_interview">Final Interview</option>
+            <option value="hired">Hired</option>
+            <option value="rejected">Rejected</option>
           </select>
         </div>
         <div>
@@ -97,12 +104,16 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
         <div>
           <label class="block text-xs font-medium text-gray-600 mb-1">Buscar por texto (nombre o email)</label>
-          <input type="text" id="searchText" placeholder="Ej: john" class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500" />
+          <input type="text" id="searchText" placeholder="Ej: john, doe, john@..." class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500" />
         </div>
         <div>
-          <label class="block text-xs font-medium text-gray-600 mb-1">Campo para búsqueda exacta</label>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Campo para búsqueda</label>
           <select id="searchField" class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
+            <option value="first_name">Nombre</option>
+            <option value="last_name">Apellido</option>
+            <option value="full_name">Nombre completo</option>
             <option value="email">Email</option>
+            <option value="job_title">Puesto</option>
             <option value="status">Estado</option>
             <option value="stage">Etapa</option>
           </select>
@@ -221,6 +232,11 @@
     function linearSearchByText(items, field, query) {
       const q = query.toLowerCase();
       return items.filter(item => {
+        // full_name es un campo compuesto
+        if (field === "full_name") {
+          const full = `${item.first_name ?? ""} ${item.last_name ?? ""}`.toLowerCase();
+          return full.includes(q);
+        }
         const val = item[field];
         return typeof val === 'string' && val.toLowerCase().includes(q);
       });

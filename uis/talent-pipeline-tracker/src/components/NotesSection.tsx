@@ -4,20 +4,20 @@ import { useState, useEffect, useCallback } from "react";
 import { getNotes, addNote, deleteNote } from "@/lib/api";
 import type { Note } from "@/lib/types";
 
-export default function NotesSection({ candidateId }: { candidateId: number }) {
+export default function NotesSection({ candidateId }: { candidateId: string }) {
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [newNote, setNewNote] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   // ─── Cargar notas ────────────────────────────────────────────────────
   const fetchNotes = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await getNotes(String(candidateId));
+      const data = await getNotes(candidateId);
       setNotes(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al cargar notas");
@@ -38,7 +38,7 @@ export default function NotesSection({ candidateId }: { candidateId: number }) {
 
     setSubmitting(true);
     try {
-      const created = await addNote(String(candidateId), { content });
+      const created = await addNote(candidateId, { content });
       setNotes((prev) => [created, ...prev]);
       setNewNote("");
     } catch (err) {
@@ -49,12 +49,12 @@ export default function NotesSection({ candidateId }: { candidateId: number }) {
   };
 
   // ─── Eliminar nota ───────────────────────────────────────────────────
-  const handleDelete = async (noteId: number) => {
+  const handleDelete = async (noteId: string) => {
     if (!confirm("¿Eliminar esta nota?")) return;
 
     setDeletingId(noteId);
     try {
-      await deleteNote(String(candidateId), noteId);
+      await deleteNote(candidateId, noteId);
       setNotes((prev) => prev.filter((n) => n.id !== noteId));
     } catch (err) {
       alert(err instanceof Error ? err.message : "Error al eliminar nota");

@@ -18,9 +18,33 @@ export type CandidateStage =
   | "hired"
   | "rejected";
 
-// ─── Modelo de Candidato ───────────────────────────────────────────────
+// ─── Modelo que devuelve la API (raw) ──────────────────────────────────
+export interface RawCandidate {
+  id: string;
+  full_name: string;
+  email: string;
+  phone: string;
+  position: string;
+  status: string;
+  stage: string;
+  linkedin_url?: string;
+  cv_url?: string;
+  experience_years?: number;
+  notes_count?: number;
+  applied_at?: string;
+  updated_at?: string;
+}
+
+export interface RawNote {
+  id: string;
+  record_id: string;
+  content: string;
+  created_at?: string;
+}
+
+// ─── Modelo de Candidato (normalizado para la UI) ──────────────────────
 export interface Candidate {
-  id: number;
+  id: string;
   first_name: string;
   last_name: string;
   email: string;
@@ -34,12 +58,13 @@ export interface Candidate {
   application_date?: string;
   created_at?: string;
   updated_at?: string;
+  notes_count?: number;
 }
 
 // ─── Modelo de Nota ────────────────────────────────────────────────────
 export interface Note {
-  id: number;
-  record_id: number;
+  id: string;
+  record_id: string;
   content: string;
   created_by?: string;
   created_at?: string;

@@ -10,6 +10,7 @@ import {
   StatusStageControl,
   NotesSection,
 } from "@/components";
+import type { CandidateStatus, CandidateStage } from "@/lib/types";
 
 export default function CandidateDetailPage({
   params,
@@ -33,7 +34,10 @@ export default function CandidateDetailPage({
   }
 
   // ─── Actualización optimista del candidato en memoria ────────────────
-  const handleUpdate = (patch: { status?: string; stage?: string }) => {
+  const handleUpdate = (patch: {
+    status?: CandidateStatus;
+    stage?: CandidateStage;
+  }) => {
     setCandidate((prev) => (prev ? { ...prev, ...patch } : prev));
   };
 
