@@ -1,0 +1,31 @@
+id_incidencia,categoria,estado,puntuacion_satisfaccion,proveedor,fecha_apertura
+1,Retraso en entrega,cerrado,4,UPS,2026-08-01
+2,Producto dañado,cerrado,3,FedEx,2026-08-03
+3,Retraso en entrega,abierto,,DHL,2026-08-05
+4,Devolución incorrecta,cerrado,5,MRW,2026-08-07
+5,Error de picking,cerrado,,SEUR,2026-08-10
+6,Producto dañado,descartado,,DHL España,2026-08-12
+7,Problema de inventario,cerrado,4,UPS,2026-08-14
+8,Retraso en entrega,cerrado,2,FedEx,2026-08-16
+9,Devolución incorrecta,abierto,,MRW,2026-08-18
+10,Error de picking,cerrado,5,SEUR,2026-08-20
+11,Producto dañado,cerrado,3,DHL,2026-08-22
+12,Retraso en entrega,cerrado,4,Correos Express,2026-08-24
+13,Problema de inventario,descartado,,UPs,2026-08-26
+14,Error de picking,abierto,,FedEx,2026-08-28
+15,Devolución incorrecta,cerrado,1,DHL España,2026-08-30
+16,Retraso en entrega,cerrado,,UPS,2026-09-01
+17,Producto dañado,abierto,,SEUR,2026-09-03
+18,Problema de inventario,cerrado,5,MRW,2026-09-05
+19,Retraso en entrega,cerrado,3,DHL,2026-09-07
+20,Error de picking,descartado,,FedEx,2026-09-09
+21,CATEGORIA_INVALIDA,cerrado,4,UPS,2026-09-11
+22,Producto dañado,estado_invalido,3,MRW,2026-09-13
+23,Retraso en entrega,cerrado,6,DHL,2026-09-15
+24,Producto dañado,cerrado,-1,SEUR,2026-09-17
+25,   ,cerrado,4,FedEx,2026-09-19
+26,Error de picking,abierto,,,2026-09-21
+27,Retraso en entrega,cerrado,5,USPS,2026-09-23
+28,Producto dañado,cerrado,2,DHL,2026-09-25
+29,Devolución incorrecta,cerrado,4,MRW,2026-09-27
+30,Retraso en entrega,cerrado,3,SEUR,2026-09-29

@@ -9,6 +9,8 @@ import type {
   LeadPatchPayload,
   Note,
   NotePostPayload,
+  Supplier,
+  SupplierFormData,
   ApiResponse,
 } from "./types";
 
@@ -99,6 +101,58 @@ export async function addNote(leadId: number, payload: NotePostPayload): Promise
 
 export async function deleteNote(leadId: number, noteId: number): Promise<void> {
   await fetchAPI<void>(`/records/${leadId}/notes/${noteId}`, {
+    method: "DELETE",
+  });
+}
+
+/* ─── Suppliers ─── */
+
+export async function getAllSuppliers(
+  pais?: string,
+  categoria?: string
+): Promise<Supplier[]> {
+  const params = new URLSearchParams();
+  if (pais) params.set("pais", pais);
+  if (categoria) params.set("categoria", categoria);
+  const qs = params.toString();
+  const raw = await fetchAPI<Supplier[] | ApiResponse<Supplier>>(`/suppliers${qs ? `?${qs}` : ""}`);
+  return unwrapArray(raw);
+}
+
+export async function getSupplierById(id: number): Promise<Supplier | null> {
+  const raw = await fetchAPI<Supplier | ApiResponse<Supplier>>(`/suppliers/${id}`);
+  return unwrapSingle(raw);
+}
+
+export async function createSupplier(data: SupplierFormData): Promise<Supplier> {
+  return fetchAPI<Supplier>("/suppliers", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+export async function updateSupplierRate(
+  id: number,
+  tarifa: number
+): Promise<Supplier> {
+  return fetchAPI<Supplier>(`/suppliers/${id}/rate`, {
+    method: "PATCH",
+    body: JSON.stringify({ tarifa }),
+  });
+}
+
+export async function updateSupplierStatus(
+  id: number,
+  status: string
+): Promise<Supplier> {
+  return fetchAPI<Supplier>(`/suppliers/${id}/status`, {
+    method: "PATCH",
+    body: JSON.stringify({ status }),
+  });
+}
+
+export async function deleteSupplier(id: number): Promise<void> {
+  await fetchAPI<void>(`/suppliers/${id}`, {
     method: "DELETE",
   });
 }

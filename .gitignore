@@ -55,4 +55,7 @@ venv/
 *.jpeg
 *.gif
 *.ico
-*.svg
+*.svg# ─── Output generado ──────────────────────────────────────────
+results.csv
+scripts/results.csv
+*.db.json
