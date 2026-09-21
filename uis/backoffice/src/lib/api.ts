@@ -16,6 +16,12 @@ import type {
   RegisterPayload,
   UserProfile,
   ProfileUpdatePayload,
+  ForgotPasswordPayload,
+  ForgotPasswordResponse,
+  ResetPasswordPayload,
+  ResetPasswordResponse,
+  ChangePasswordPayload,
+  ChangePasswordResponse,
   ApiResponse,
 } from "./types";
 
@@ -177,6 +183,36 @@ export async function register(payload: RegisterPayload): Promise<{ id: number; 
     body: JSON.stringify(payload),
   });
 }
+
+/* ─── Auth — Password Recovery (AUTH-03) ─── */
+
+export async function forgotPassword(
+  payload: ForgotPasswordPayload
+): Promise<ForgotPasswordResponse> {
+  return fetchAPI<ForgotPasswordResponse>("/auth/forgot-password", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function resetPassword(
+  payload: ResetPasswordPayload
+): Promise<ResetPasswordResponse> {
+  return fetchAPI<ResetPasswordResponse>("/auth/reset-password", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function changePassword(
+  payload: ChangePasswordPayload
+): Promise<ChangePasswordResponse> {
+  return authFetch<ChangePasswordResponse>("/auth/change-password", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
 
 /* ─── Token helpers (solo cliente) ─── */
 

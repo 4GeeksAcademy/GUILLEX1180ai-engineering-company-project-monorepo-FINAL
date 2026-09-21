@@ -20,6 +20,9 @@ class Settings(BaseSettings):
         "http://localhost:8080",
     ]
 
+    # Resend
+    resend_api_key: str = ""
+
     class Config:
         env_file = ".env"
 

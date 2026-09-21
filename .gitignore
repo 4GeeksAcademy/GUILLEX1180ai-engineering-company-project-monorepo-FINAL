@@ -18,6 +18,9 @@ out/
 .env.local
 .env.*.local
 
+# Allow .env.example files (templates)
+!.env.example
+
 # ─── IDE / Editor ─────────────────────────────────────────────────
 .vscode/settings.json
 .vscode/launch.json

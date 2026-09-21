@@ -6,6 +6,7 @@
 "use client";
 
 import { useState, useEffect, type FormEvent } from "react";
+import Link from "next/link";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
 import { getProfile, updateProfile, getToken, logout } from "@/lib/api";
 import type { UserProfile, ProfileUpdatePayload } from "@/lib/types";
@@ -141,19 +142,20 @@ export default function AccountProfilePage() {
             Gestiona tu información personal
           </p>
         </div>
-        <button
-          onClick={logout}
-          className="rounded-lg border border-red-300 px-4 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-50"
-        >
-          Cerrar sesión
-        </button>
-      </div>
-
-      {/* Mensajes de feedback */}
-      {successMsg && (
-        <div className="mb-4 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
-          {successMsg}
-        </div>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/account/change-password"
+              className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50"
+            >
+              Cambiar contraseña
+            </Link>
+            <button
+              onClick={logout}
+              className="rounded-lg border border-red-300 px-4 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-50"
+            >
+              Cerrar sesión
+            </button>
+          </div>
       )}
       {saveError && (
         <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">

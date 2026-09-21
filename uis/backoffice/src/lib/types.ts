@@ -199,6 +199,35 @@ export interface ProfileUpdatePayload {
   address?: string;
 }
 
+/* ─── Auth — Password Recovery (AUTH-03) ─── */
+
+export interface ForgotPasswordPayload {
+  email: string;
+}
+
+export interface ForgotPasswordResponse {
+  message: string;
+  remaining_requests: number;
+}
+
+export interface ResetPasswordPayload {
+  token: string;
+  new_password: string;
+}
+
+export interface ResetPasswordResponse {
+  message: string;
+}
+
+export interface ChangePasswordPayload {
+  current_password: string;
+  new_password: string;
+}
+
+export interface ChangePasswordResponse {
+  message: string;
+}
+
 export function humanize(snake: string): string {
   return snake
     .replace(/_/g, " ")
