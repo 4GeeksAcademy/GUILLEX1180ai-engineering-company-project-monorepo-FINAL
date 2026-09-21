@@ -145,7 +145,59 @@ export const PRODUCT_CATEGORY_OPTIONS: ProductCategory[] = [
 
 export const COUNTRY_OPTIONS: Country[] = ["Estados Unidos", "España"];
 
+/* ─── Autenticación ─── */
+
+export interface LoginPayload {
+  email: string;
+  password: string;
+}
+
+export interface RegisterPayload {
+  email: string;
+  password: string;
+  name?: string;
+  phone?: string;
+  address?: string;
+}
+
+export interface AuthResponse {
+  access_token: string;
+  token_type?: string;
+  user?: {
+    id: number;
+    email: string;
+    name?: string;
+  };
+}
+
+export interface FieldError {
+  field: string;
+  message: string;
+}
+
+export interface ValidationErrorResponse {
+  detail: string | FieldError[];
+}
+
 /* ─── Funciones helper ─── */
+
+/* ─── Perfil de usuario ─── */
+
+export interface UserProfile {
+  id: number;
+  email: string;
+  name?: string;
+  phone?: string;
+  address?: string;
+  created_at: string;
+  updated_at?: string;
+}
+
+export interface ProfileUpdatePayload {
+  name?: string;
+  phone?: string;
+  address?: string;
+}
 
 export function humanize(snake: string): string {
   return snake

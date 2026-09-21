@@ -5,6 +5,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import "./globals.css";
+import { AuthNav } from "@/components/AuthNav";
 
 export const metadata: Metadata = {
   title: "TrackFlow Tech — Backoffice",
@@ -31,29 +32,32 @@ export default function RootLayout({
                 TrackFlow <span className="text-tf-blue">Tech</span>
               </span>
             </Link>
-            <nav className="flex items-center gap-6 text-sm font-medium text-gray-600">
-              <Link href="/" className="hover:text-tf-blue transition-colors">
-                Leads
-              </Link>
-              <Link
-                href="/suppliers"
-                className="hover:text-tf-blue transition-colors"
-              >
-                Proveedores
-              </Link>
-              <Link
-                href="/incidents"
-                className="hover:text-tf-blue transition-colors"
-              >
-                Incidencias
-              </Link>
-              <Link
-                href="/candidates/new"
-                className="rounded-lg bg-tf-blue px-4 py-2 text-white hover:bg-tf-blue-dark transition-colors"
-              >
-                + Nuevo Lead
-              </Link>
-            </nav>
+            <div className="flex items-center gap-6">
+              <nav className="flex items-center gap-6 text-sm font-medium text-gray-600">
+                <Link href="/" className="hover:text-tf-blue transition-colors">
+                  Leads
+                </Link>
+                <Link
+                  href="/suppliers"
+                  className="hover:text-tf-blue transition-colors"
+                >
+                  Proveedores
+                </Link>
+                <Link
+                  href="/incidents"
+                  className="hover:text-tf-blue transition-colors"
+                >
+                  Incidencias
+                </Link>
+                <Link
+                  href="/candidates/new"
+                  className="rounded-lg bg-tf-blue px-4 py-2 text-white hover:bg-tf-blue-dark transition-colors"
+                >
+                  + Nuevo Lead
+                </Link>
+              </nav>
+              <AuthNav />
+            </div>
           </div>
         </header>
 

@@ -11,6 +11,11 @@ import type {
   NotePostPayload,
   Supplier,
   SupplierFormData,
+  AuthResponse,
+  LoginPayload,
+  RegisterPayload,
+  UserProfile,
+  ProfileUpdatePayload,
   ApiResponse,
 } from "./types";
 
@@ -155,4 +160,112 @@ export async function deleteSupplier(id: number): Promise<void> {
   await fetchAPI<void>(`/suppliers/${id}`, {
     method: "DELETE",
   });
+}
+
+/* ─── Autenticación ─── */
+
+export async function login(payload: LoginPayload): Promise<AuthResponse> {
+  return fetchAPI<AuthResponse>("/auth/login", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function register(payload: RegisterPayload): Promise<{ id: number; email: string }> {
+  return fetchAPI<{ id: number; email: string }>("/auth/register", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+/* ─── Token helpers (solo cliente) ─── */
+
+export function storeToken(token: string): void {
+  if (typeof window !== "undefined") {
+    localStorage.setItem("tf_access_token", token);
+  }
+}
+
+export function getToken(): string | null {
+  if (typeof window !== "undefined") {
+    return localStorage.getItem("tf_access_token");
+  }
+  return null;
+}
+
+export function removeToken(): void {
+  if (typeof window !== "undefined") {
+    localStorage.removeItem("tf_access_token");
+  }
+}
+
+/* ─── Cliente fetch protegido (Bearer token automático) ─── */
+
+async function authFetch<T>(
+  path: string,
+  options?: RequestInit
+): Promise<T> {
+  const token = getToken();
+
+  if (!token) {
+    redirectToLogin();
+    throw new Error("No autenticado — redirigiendo a login");
+  }
+
+  const url = `${API_BASE}${path}`;
+  const res = await fetch(url, {
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+      ...options?.headers,
+    },
+  });
+
+  // 401 → token inválido/expirado → limpiar y redirigir
+  if (res.status === 401) {
+    removeToken();
+    redirectToLogin();
+    throw new Error("HTTP 401 — Token inválido. Sesión cerrada.");
+  }
+
+  if (!res.ok) {
+    const body = await res.text().catch(() => "");
+    throw new Error(
+      `HTTP ${res.status} — ${res.statusText}${body ? `: ${body}` : ""}`
+    );
+  }
+
+  if (res.status === 204) return undefined as unknown as T;
+  return res.json() as Promise<T>;
+}
+
+function redirectToLogin(): void {
+  if (typeof window !== "undefined") {
+    window.location.href = "/login";
+  }
+}
+
+/* ─── Perfil de usuario ─── */
+
+export async function getProfile(): Promise<UserProfile> {
+  return authFetch<UserProfile>("/auth/me");
+}
+
+export async function updateProfile(
+  data: ProfileUpdatePayload
+): Promise<UserProfile> {
+  return authFetch<UserProfile>("/profiles/me", {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+}
+
+/* ─── Logout ─── */
+
+export function logout(): void {
+  removeToken();
+  if (typeof window !== "undefined") {
+    window.location.href = "/login";
+  }
 }

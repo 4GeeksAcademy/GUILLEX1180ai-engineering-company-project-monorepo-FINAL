@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from config import settings
-from routes import incidents, suppliers, leads
+from routes import auth, incidents, suppliers, leads
 
 app = FastAPI(
     title=settings.app_name,
@@ -50,6 +50,7 @@ async def global_exception_handler(request: Request, exc: Exception):
 
 # ─── Routers ───
 
+app.include_router(auth.router, prefix=settings.api_prefix)
 app.include_router(suppliers.router, prefix=settings.api_prefix)
 app.include_router(incidents.router, prefix=settings.api_prefix)
 app.include_router(leads.router, prefix=settings.api_prefix)
