@@ -9,6 +9,7 @@ import { useState, FormEvent } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useSupplier } from "@/hooks/useSuppliers";
+import { useAuthGuard } from "@/hooks/useAuthGuard";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { SupplierBadge } from "@/components/StatusBadge";
@@ -17,7 +18,11 @@ import { SUPPLIER_STATUS_OPTIONS, type SupplierStatus } from "@/lib/types";
 export default function SupplierDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
+  const { isChecking, isAuthenticated } = useAuthGuard();
   const supplierId = parseInt(id, 10);
+
+  if (isChecking) return <LoadingSpinner message="Verificando sesión…" />;
+  if (!isAuthenticated) return null;
 
   const { supplier, state, error, refetch, updateRate, updateStatus, remove } =
     useSupplier(supplierId);

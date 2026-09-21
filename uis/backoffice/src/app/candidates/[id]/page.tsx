@@ -8,6 +8,7 @@
 import { use, useCallback, useState } from "react";
 import Link from "next/link";
 import { useLead } from "@/hooks/useLead";
+import { useAuthGuard } from "@/hooks/useAuthGuard";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { StatusBadge } from "@/components/StatusBadge";
@@ -100,7 +101,11 @@ export default function LeadDetailPage({
 }) {
   const { id } = use(params);
   const leadId = Number(id);
+  const { isChecking, isAuthenticated } = useAuthGuard();
   const { lead, state, error, refetch, setLead } = useLead(leadId);
+
+  if (isChecking) return <LoadingSpinner message="Verificando sesión…" />;
+  if (!isAuthenticated) return null;
 
   const handleUpdate = useCallback(
     (newStatus: LeadStatus, newStage: LeadStage) => {

@@ -109,8 +109,8 @@ export default function RegisterPage() {
       // 3. Almacenar token
       storeToken(authResponse.access_token);
 
-      // 4. Redirigir al dashboard
-      router.push("/dashboard");
+      // 4. Redirigir al panel principal
+      router.push("/");
     } catch (err) {
       parseError(err);
     } finally {

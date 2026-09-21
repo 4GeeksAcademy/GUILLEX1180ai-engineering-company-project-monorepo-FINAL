@@ -8,6 +8,7 @@
 import { Suspense, useState, useMemo, useCallback } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useLeads } from "@/hooks/useLeads";
+import { useAuthGuard } from "@/hooks/useAuthGuard";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { LeadCard } from "@/components/LeadCard";
@@ -218,6 +219,11 @@ function LeadListContent() {
 
 // Page wrapper con Suspense por useSearchParams
 export default function LeadsPage() {
+  const { isChecking, isAuthenticated } = useAuthGuard();
+
+  if (isChecking) return <LoadingSpinner message="Verificando sesión…" />;
+  if (!isAuthenticated) return null;
+
   return (
     <Suspense fallback={<LoadingSpinner message="Cargando leads…" />}>
       <LeadListContent />

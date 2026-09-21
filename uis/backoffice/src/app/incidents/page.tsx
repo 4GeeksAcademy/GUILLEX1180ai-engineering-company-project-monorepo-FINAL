@@ -7,14 +7,19 @@
 
 import { useCallback } from "react";
 import { useIncidents } from "@/hooks/useIncidents";
+import { useAuthGuard } from "@/hooks/useAuthGuard";
 import { CsvUpload } from "@/components/CsvUpload";
 import { IncidentsResults } from "@/components/IncidentsResults";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { ErrorMessage } from "@/components/ErrorMessage";
 
 export default function IncidentsPage() {
+  const { isChecking, isAuthenticated } = useAuthGuard();
   const { result, state, error, analyze, downloadCsv, reset } =
     useIncidents();
+
+  if (isChecking) return <LoadingSpinner message="Verificando sesión…" />;
+  if (!isAuthenticated) return null;
 
   const handleFileSelected = useCallback(
     (file: File) => {

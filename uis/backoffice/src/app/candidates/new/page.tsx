@@ -9,6 +9,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createLead } from "@/lib/api";
+import { useAuthGuard } from "@/hooks/useAuthGuard";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { LEAD_STATUS_OPTIONS, LEAD_STAGE_OPTIONS, humanize } from "@/lib/types";
 import type { LeadFormData, LeadStatus, LeadStage } from "@/lib/types";
 
@@ -30,7 +32,11 @@ const SERVICE_OPTIONS = ["Almacenaje", "Última milla", "Logística inversa"];
 
 export default function NewLeadPage() {
   const router = useRouter();
+  const { isChecking, isAuthenticated } = useAuthGuard();
   const [form, setForm] = useState<LeadFormData>(INITIAL_FORM);
+
+  if (isChecking) return <LoadingSpinner message="Verificando sesión…" />;
+  if (!isAuthenticated) return null;
   const [status, setStatus] = useState<LeadStatus>("new");
   const [stage, setStage] = useState<LeadStage>("inbound");
   const [sending, setSending] = useState(false);

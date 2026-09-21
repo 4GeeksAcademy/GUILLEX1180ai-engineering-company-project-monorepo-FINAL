@@ -9,6 +9,7 @@ import { use, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useLead } from "@/hooks/useLead";
+import { useAuthGuard } from "@/hooks/useAuthGuard";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { updateLead } from "@/lib/api";
@@ -25,7 +26,11 @@ export default function EditLeadPage({
   const { id } = use(params);
   const leadId = Number(id);
   const router = useRouter();
+  const { isChecking, isAuthenticated } = useAuthGuard();
   const { lead, state, error } = useLead(leadId);
+
+  if (isChecking) return <LoadingSpinner message="Verificando sesión…" />;
+  if (!isAuthenticated) return null;
 
   const [sending, setSending] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);

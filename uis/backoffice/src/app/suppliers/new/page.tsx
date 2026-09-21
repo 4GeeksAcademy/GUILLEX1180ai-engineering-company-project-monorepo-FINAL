@@ -9,6 +9,8 @@ import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createSupplier } from "@/lib/api";
+import { useAuthGuard } from "@/hooks/useAuthGuard";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 import {
   COUNTRY_OPTIONS,
   PRODUCT_CATEGORY_OPTIONS,
@@ -21,7 +23,11 @@ import { ErrorMessage } from "@/components/ErrorMessage";
 
 export default function NewSupplierPage() {
   const router = useRouter();
+  const { isChecking, isAuthenticated } = useAuthGuard();
   const [submitting, setSubmitting] = useState(false);
+
+  if (isChecking) return <LoadingSpinner message="Verificando sesión…" />;
+  if (!isAuthenticated) return null;
   const [error, setError] = useState<string | null>(null);
 
   const [nombre, setNombre] = useState("");

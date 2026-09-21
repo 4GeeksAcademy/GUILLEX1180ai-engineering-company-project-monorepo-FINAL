@@ -29,7 +29,7 @@ export default function LoginPage() {
     try {
       const response = await login({ email, password });
       storeToken(response.access_token);
-      router.push("/dashboard");
+      router.push("/");
     } catch (err) {
       const message = err instanceof Error ? err.message : "Error desconocido";
 

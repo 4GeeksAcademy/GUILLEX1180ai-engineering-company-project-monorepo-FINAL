@@ -9,6 +9,7 @@ import { Suspense, useState, useMemo, useCallback } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { useSuppliers } from "@/hooks/useSuppliers";
+import { useAuthGuard } from "@/hooks/useAuthGuard";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { SupplierBadge } from "@/components/StatusBadge";
@@ -230,6 +231,11 @@ function SupplierListContent() {
 
 // Page wrapper con Suspense por useSearchParams
 export default function SuppliersPage() {
+  const { isChecking, isAuthenticated } = useAuthGuard();
+
+  if (isChecking) return <LoadingSpinner message="Verificando sesión…" />;
+  if (!isAuthenticated) return null;
+
   return (
     <Suspense fallback={<LoadingSpinner message="Cargando proveedores…" />}>
       <SupplierListContent />
