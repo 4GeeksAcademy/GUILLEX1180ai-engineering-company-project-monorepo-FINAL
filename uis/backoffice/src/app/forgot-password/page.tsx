@@ -58,26 +58,7 @@ export default function ForgotPasswordPage() {
       // Deshabilitar temporalmente el botón por 30 segundos
       startCooldown();
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Error desconocido";
-
-      if (message.includes("429")) {
-        setError("Has realizado demasiadas solicitudes. Intenta de nuevo más tarde.");
-      } else if (message.includes("Failed to fetch") || message.includes("TypeError")) {
-        setError("Error de conexión. Verifica que el servidor esté corriendo.");
-      } else {
-        // Extraer detalle del backend si está disponible
-        const match = message.match(/\{.*\}/);
-        if (match) {
-          try {
-            const parsed = JSON.parse(match[0]);
-            setError(parsed.detail?.message || parsed.detail || message);
-          } catch {
-            setError(message);
-          }
-        } else {
-          setError(message);
-        }
-      }
+      setError(err instanceof Error ? err.message : "Error al solicitar restablecimiento");
     } finally {
       setLoading(false);
     }

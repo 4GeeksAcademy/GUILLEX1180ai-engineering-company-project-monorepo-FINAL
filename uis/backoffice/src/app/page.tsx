@@ -76,15 +76,8 @@ function LeadListContent() {
         <ErrorMessage
           title="Error al cargar leads"
           message={error ?? "Ocurrió un error inesperado"}
+          retryAction={refetch}
         />
-        <div className="text-center">
-          <button
-            onClick={refetch}
-            className="rounded-lg bg-tf-blue px-4 py-2 text-sm text-white hover:bg-tf-blue-dark transition-colors"
-          >
-            Reintentar
-          </button>
-        </div>
       </div>
     );
   }

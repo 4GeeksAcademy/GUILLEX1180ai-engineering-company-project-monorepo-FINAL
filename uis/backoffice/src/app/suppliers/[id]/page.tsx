@@ -37,9 +37,11 @@ export default function SupplierDetailPage() {
   const [editingStatus, setEditingStatus] = useState(false);
   const [newStatus, setNewStatus] = useState<SupplierStatus>("activo");
   const [statusSubmitting, setStatusSubmitting] = useState(false);
+  const [statusError, setStatusError] = useState<string | null>(null);
 
   // Delete
   const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   if (state === "loading") {
     return <LoadingSpinner message="Cargando proveedor…" />;
@@ -78,11 +80,12 @@ export default function SupplierDetailPage() {
 
   const handleStatusSubmit = async () => {
     setStatusSubmitting(true);
+    setStatusError(null);
     try {
       await updateStatus(newStatus);
       setEditingStatus(false);
     } catch (err) {
-      // ignore
+      setStatusError(err instanceof Error ? err.message : "Error al cambiar estado");
     } finally {
       setStatusSubmitting(false);
     }
@@ -91,11 +94,14 @@ export default function SupplierDetailPage() {
   const handleDelete = async () => {
     if (!confirm("¿Estás seguro de eliminar este proveedor?")) return;
     setDeleting(true);
+    setDeleteError(null);
     try {
       await remove();
       router.push("/suppliers");
     } catch (err) {
-      // ignore
+      setDeleteError(err instanceof Error ? err.message : "Error al eliminar proveedor");
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -131,6 +137,7 @@ export default function SupplierDetailPage() {
         >
           {deleting ? "Eliminando…" : "Eliminar proveedor"}
         </button>
+        {deleteError && <p className="mt-1 text-xs text-red-600">{deleteError}</p>}
       </div>
 
       {/* Info general */}
@@ -261,6 +268,7 @@ export default function SupplierDetailPage() {
                   Cancelar
                 </button>
               </div>
+              {statusError && <p className="mt-2 text-xs text-red-600">{statusError}</p>}
             )}
           </div>
           {!editingStatus && (

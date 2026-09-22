@@ -9,7 +9,6 @@ import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { register, login, storeToken } from "@/lib/api";
-import type { FieldError } from "@/lib/types";
 
 interface FormFields {
   name: string;
@@ -33,55 +32,15 @@ export default function RegisterPage() {
   const [form, setForm] = useState<FormFields>(INITIAL_FORM);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [fieldErrors, setFieldErrors] = useState<FieldError[]>([]);
 
   const updateField = (field: keyof FormFields, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const getFieldError = (field: string): string | undefined =>
-    fieldErrors.find((fe) => fe.field === field)?.message;
-
-  const parseError = (err: unknown): void => {
-    const message = err instanceof Error ? err.message : "Error desconocido";
-
-    // Intentar extraer errores de validación por campo desde JSON en el mensaje
-    const match = message.match(/\{.*\}/s);
-    if (match) {
-      try {
-        const parsed = JSON.parse(match[0]);
-        if (Array.isArray(parsed.detail)) {
-          setFieldErrors(parsed.detail as FieldError[]);
-          return;
-        }
-        if (typeof parsed.detail === "string") {
-          setError(parsed.detail);
-          return;
-        }
-      } catch {
-        // fallback
-      }
-    }
-
-    // Errores HTTP conocidos
-    if (message.includes("401") || message.includes("403")) {
-      setError("Credenciales inválidas. Verifica tu email y contraseña.");
-    } else if (message.includes("409")) {
-      setError("Este correo electrónico ya está registrado.");
-    } else if (message.includes("400") || message.includes("422")) {
-      setError("Datos inválidos. Revisa los campos del formulario.");
-    } else if (message.includes("000") || message.includes("Failed to fetch") || message.includes("TypeError")) {
-      setError("Error de conexión. Verifica que el servidor esté corriendo.");
-    } else {
-      setError(message);
-    }
   };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    setFieldErrors([]);
 
     // Validación local básica
     if (!form.email || !form.password) {
@@ -112,7 +71,7 @@ export default function RegisterPage() {
       // 4. Redirigir al panel principal
       router.push("/");
     } catch (err) {
-      parseError(err);
+      setError(err instanceof Error ? err.message : "Error al registrar usuario");
     } finally {
       setLoading(false);
     }
@@ -158,15 +117,8 @@ export default function RegisterPage() {
               onChange={(e) => updateField("name", e.target.value)}
               disabled={loading}
               placeholder="Juan Pérez"
-              className={`w-full rounded-lg border px-4 py-2.5 text-sm text-tf-dark placeholder-gray-400 outline-none transition-colors focus:ring-2 focus:ring-tf-blue/30 ${
-                getFieldError("name")
-                  ? "border-red-400 focus:border-red-500"
-                  : "border-gray-300 focus:border-tf-blue"
-              }`}
+              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-tf-dark placeholder-gray-400 outline-none transition-colors focus:border-tf-blue focus:ring-2 focus:ring-tf-blue/30"
             />
-            {getFieldError("name") && (
-              <p className="mt-1 text-xs text-red-600">{getFieldError("name")}</p>
-            )}
           </div>
 
           {/* Email */}
@@ -186,15 +138,8 @@ export default function RegisterPage() {
               onChange={(e) => updateField("email", e.target.value)}
               disabled={loading}
               placeholder="tu@correo.com"
-              className={`w-full rounded-lg border px-4 py-2.5 text-sm text-tf-dark placeholder-gray-400 outline-none transition-colors focus:ring-2 focus:ring-tf-blue/30 ${
-                getFieldError("email")
-                  ? "border-red-400 focus:border-red-500"
-                  : "border-gray-300 focus:border-tf-blue"
-              }`}
+              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-tf-dark placeholder-gray-400 outline-none transition-colors focus:border-tf-blue focus:ring-2 focus:ring-tf-blue/30"
             />
-            {getFieldError("email") && (
-              <p className="mt-1 text-xs text-red-600">{getFieldError("email")}</p>
-            )}
           </div>
 
           {/* Password */}
@@ -215,15 +160,8 @@ export default function RegisterPage() {
               onChange={(e) => updateField("password", e.target.value)}
               disabled={loading}
               placeholder="Mín. 6 caracteres"
-              className={`w-full rounded-lg border px-4 py-2.5 text-sm text-tf-dark placeholder-gray-400 outline-none transition-colors focus:ring-2 focus:ring-tf-blue/30 ${
-                getFieldError("password")
-                  ? "border-red-400 focus:border-red-500"
-                  : "border-gray-300 focus:border-tf-blue"
-              }`}
+              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-tf-dark placeholder-gray-400 outline-none transition-colors focus:border-tf-blue focus:ring-2 focus:ring-tf-blue/30"
             />
-            {getFieldError("password") && (
-              <p className="mt-1 text-xs text-red-600">{getFieldError("password")}</p>
-            )}
           </div>
 
           {/* Teléfono */}
@@ -242,15 +180,8 @@ export default function RegisterPage() {
               onChange={(e) => updateField("phone", e.target.value)}
               disabled={loading}
               placeholder="+52 555 123 4567"
-              className={`w-full rounded-lg border px-4 py-2.5 text-sm text-tf-dark placeholder-gray-400 outline-none transition-colors focus:ring-2 focus:ring-tf-blue/30 ${
-                getFieldError("phone")
-                  ? "border-red-400 focus:border-red-500"
-                  : "border-gray-300 focus:border-tf-blue"
-              }`}
+              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-tf-dark placeholder-gray-400 outline-none transition-colors focus:border-tf-blue focus:ring-2 focus:ring-tf-blue/30"
             />
-            {getFieldError("phone") && (
-              <p className="mt-1 text-xs text-red-600">{getFieldError("phone")}</p>
-            )}
           </div>
 
           {/* Dirección */}
@@ -269,15 +200,8 @@ export default function RegisterPage() {
               onChange={(e) => updateField("address", e.target.value)}
               disabled={loading}
               placeholder="Calle, ciudad, código postal"
-              className={`w-full rounded-lg border px-4 py-2.5 text-sm text-tf-dark placeholder-gray-400 outline-none transition-colors focus:ring-2 focus:ring-tf-blue/30 ${
-                getFieldError("address")
-                  ? "border-red-400 focus:border-red-500"
-                  : "border-gray-300 focus:border-tf-blue"
-              }`}
+              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-tf-dark placeholder-gray-400 outline-none transition-colors focus:border-tf-blue focus:ring-2 focus:ring-tf-blue/30"
             />
-            {getFieldError("address") && (
-              <p className="mt-1 text-xs text-red-600">{getFieldError("address")}</p>
-            )}
           </div>
 
           {/* Submit */}

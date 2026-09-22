@@ -31,16 +31,20 @@ function StatusStageControl({
   const [stage, setStage] = useState<LeadStage>(initialStage);
   const [savingStatus, setSavingStatus] = useState(false);
   const [savingStage, setSavingStage] = useState(false);
+  const [statusError, setStatusError] = useState<string | null>(null);
+  const [stageError, setStageError] = useState<string | null>(null);
 
   const handleStatusChange = async (newStatus: LeadStatus) => {
     const prev = status;
     setStatus(newStatus);
     setSavingStatus(true);
+    setStatusError(null);
     try {
       await patchLead(leadId, { status: newStatus });
       onUpdate(newStatus, stage);
-    } catch {
+    } catch (err) {
       setStatus(prev);
+      setStatusError(err instanceof Error ? err.message : "Error al actualizar estado");
     } finally {
       setSavingStatus(false);
     }
@@ -50,11 +54,13 @@ function StatusStageControl({
     const prev = stage;
     setStage(newStage);
     setSavingStage(true);
+    setStageError(null);
     try {
       await patchLead(leadId, { stage: newStage });
       onUpdate(status, newStage);
-    } catch {
+    } catch (err) {
       setStage(prev);
+      setStageError(err instanceof Error ? err.message : "Error al actualizar etapa");
     } finally {
       setSavingStage(false);
     }
@@ -75,6 +81,7 @@ function StatusStageControl({
             <option key={s} value={s}>{humanize(s)}</option>
           ))}
         </select>
+        {statusError && <p className="mt-1 text-xs text-red-600">{statusError}</p>}
       </div>
       <div>
         <label className="block text-xs font-medium text-gray-500 mb-1">
@@ -89,6 +96,7 @@ function StatusStageControl({
             <option key={s} value={s}>{humanize(s)}</option>
           ))}
         </select>
+        {stageError && <p className="mt-1 text-xs text-red-600">{stageError}</p>}
       </div>
     </div>
   );

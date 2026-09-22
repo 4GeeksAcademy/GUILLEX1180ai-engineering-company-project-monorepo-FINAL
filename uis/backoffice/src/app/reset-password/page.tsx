@@ -81,25 +81,7 @@ function ResetPasswordForm() {
         router.push("/login");
       }, 3000);
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Error desconocido";
-
-      if (message.includes("400")) {
-        const match = message.match(/\{.*\}/);
-        if (match) {
-          try {
-            const parsed = JSON.parse(match[0]);
-            setError(parsed.detail || "Token inválido o expirado.");
-          } catch {
-            setError("Token inválido o expirado. Solicita uno nuevo.");
-          }
-        } else {
-          setError("Token inválido o expirado. Solicita uno nuevo.");
-        }
-      } else if (message.includes("Failed to fetch") || message.includes("TypeError")) {
-        setError("Error de conexión. Verifica que el servidor esté corriendo.");
-      } else {
-        setError(message);
-      }
+      setError(err instanceof Error ? err.message : "Error al restablecer contraseña");
     } finally {
       setLoading(false);
     }

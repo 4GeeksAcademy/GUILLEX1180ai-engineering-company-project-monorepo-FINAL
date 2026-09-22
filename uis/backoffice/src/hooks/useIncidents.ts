@@ -75,9 +75,8 @@ export function useIncidents(): UseIncidentsReturn {
           const body = await res.json();
           detail = body?.detail ?? `Error HTTP ${res.status}: ${res.statusText}`;
         } catch {
-          // Si no es JSON (ej. HTML 500 sin handler), capturamos el texto
-          const textBody = await res.text().catch(() => "");
-          detail = `Error HTTP ${res.status} — El servidor devolvió una respuesta inesperada.${textBody ? ` (${textBody.slice(0, 200)})` : ""}`;
+          // Si no es JSON (ej. HTML 500 sin handler), usar mensaje genérico
+          detail = `Error HTTP ${res.status} — El servidor devolvió una respuesta inesperada.`;
         }
         throw new Error(detail);
       }

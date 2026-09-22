@@ -39,11 +39,21 @@ async def global_exception_handler(request: Request, exc: Exception):
 
     Sin este handler, una excepción inesperada devuelve HTML 500
     y el frontend no puede parsear la respuesta, mostrando "Load failed".
+
+    Seguridad: No se expone información sensible del servidor al cliente.
     """
+    # Log interno para debugging (no se expone al cliente)
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.error(
+        f"Excepción no controlada en {request.method} {request.url.path}: "
+        f"{type(exc).__name__}: {exc}"
+    )
+
     return JSONResponse(
         status_code=500,
         content={
-            "detail": f"Error interno del servidor: {type(exc).__name__}: {exc}",
+            "detail": "Error interno del servidor. Por favor, intenta de nuevo más tarde.",
         },
     )
 

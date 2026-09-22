@@ -59,16 +59,9 @@ export default function IncidentsPage() {
         <div className="space-y-4">
           <ErrorMessage
             title="Error al analizar"
-            message={error ?? "Ocurrió un error inesperado durante el análisis."}
+            message={error ?? "No se pudo analizar el archivo. Verifica el formato CSV e intenta de nuevo."}
+            retryAction={reset}
           />
-          <div className="text-center">
-            <button
-              onClick={reset}
-              className="rounded-lg bg-tf-blue px-4 py-2 text-sm text-white hover:bg-tf-blue-dark transition-colors"
-            >
-              Intentar de nuevo
-            </button>
-          </div>
         </div>
       )}
 

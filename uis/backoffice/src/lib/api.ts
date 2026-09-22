@@ -41,11 +41,54 @@ async function fetchAPI<T>(
 
   if (!res.ok) {
     const body = await res.text().catch(() => "");
-    throw new Error(`HTTP ${res.status} — ${res.statusText}${body ? `: ${body}` : ""}`);
+    // Sanitizar mensaje de error: no exponer detalles técnicos al usuario
+    let detail = "";
+    try {
+      const parsed = JSON.parse(body);
+      detail = parsed?.detail ?? "";
+    } catch {
+      // Si no es JSON, no incluir el body en el mensaje de error
+    }
+    
+    const userMessage = getHumanReadableError(res.status, detail);
+    throw new Error(userMessage);
   }
 
   if (res.status === 204) return undefined as unknown as T; // DELETE
   return res.json() as Promise<T>;
+}
+
+/**
+ * Convierte códigos HTTP en mensajes de error amigables para el usuario.
+ * No expone información técnica sensible.
+ */
+function getHumanReadableError(status: number, detail: string): string {
+  const baseMessage = detail || "Ocurrió un error inesperado";
+  
+  switch (status) {
+    case 400:
+      return `Solicitud inválida: ${baseMessage}`;
+    case 401:
+      return "Tu sesión ha expirado. Por favor, inicia sesión nuevamente.";
+    case 403:
+      return "No tienes permisos para realizar esta acción.";
+    case 404:
+      return "El recurso solicitado no fue encontrado.";
+    case 409:
+      return `Conflicto: ${baseMessage}`;
+    case 422:
+      return `Datos inválidos: ${baseMessage}`;
+    case 429:
+      return "Demasiadas solicitudes. Por favor, espera un momento e intenta de nuevo.";
+    case 500:
+      return "Error interno del servidor. Por favor, intenta de nuevo más tarde.";
+    case 502:
+      return "El servidor no está disponible temporalmente. Por favor, intenta de nuevo más tarde.";
+    case 503:
+      return "El servicio está temporalmente no disponible. Por favor, intenta de nuevo más tarde.";
+    default:
+      return `Error (${status}): ${baseMessage}`;
+  }
 }
 
 /* ─── Normalizadores de respuesta ─── */
@@ -262,14 +305,22 @@ async function authFetch<T>(
   if (res.status === 401) {
     removeToken();
     redirectToLogin();
-    throw new Error("HTTP 401 — Token inválido. Sesión cerrada.");
+    throw new Error("Tu sesión ha expirado. Por favor, inicia sesión nuevamente.");
   }
 
   if (!res.ok) {
     const body = await res.text().catch(() => "");
-    throw new Error(
-      `HTTP ${res.status} — ${res.statusText}${body ? `: ${body}` : ""}`
-    );
+    // Sanitizar mensaje de error: no exponer detalles técnicos al usuario
+    let detail = "";
+    try {
+      const parsed = JSON.parse(body);
+      detail = parsed?.detail ?? "";
+    } catch {
+      // Si no es JSON, no incluir el body en el mensaje de error
+    }
+    
+    const userMessage = getHumanReadableError(res.status, detail);
+    throw new Error(userMessage);
   }
 
   if (res.status === 204) return undefined as unknown as T;

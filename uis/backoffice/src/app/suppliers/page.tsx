@@ -63,16 +63,9 @@ function SupplierListContent() {
       <div className="space-y-4">
         <ErrorMessage
           title="Error al cargar proveedores"
-          message={error ?? "Ocurrió un error inesperado"}
+          message={error ?? "No se pudieron cargar los proveedores. Por favor, intenta de nuevo."}
+          retryAction={() => fetchSuppliers()}
         />
-        <div className="text-center">
-          <button
-            onClick={() => fetchSuppliers()}
-            className="rounded-lg bg-tf-blue px-4 py-2 text-sm text-white hover:bg-tf-blue-dark transition-colors"
-          >
-            Reintentar
-          </button>
-        </div>
       </div>
     );
   }
