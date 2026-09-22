@@ -29,7 +29,7 @@ export function useLeads(): UseLeadsReturn {
       setLeads(data);
       setState("success");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al cargar leads");
+      setError(err instanceof Error ? err.message : "No se pudieron cargar los leads. Por favor, intenta de nuevo.");
       setState("error");
     }
   }, []);

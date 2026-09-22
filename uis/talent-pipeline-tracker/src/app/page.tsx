@@ -60,7 +60,8 @@ function CandidateList() {
       {/* Estado: error */}
       {state === "error" && (
         <ErrorMessage
-          message={error ?? "Error desconocido"}
+          message={error ?? "No se pudieron cargar los candidatos. Por favor, intenta de nuevo."}
+          retryAction={refetch}
         />
       )}
 

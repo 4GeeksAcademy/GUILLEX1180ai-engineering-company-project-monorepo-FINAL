@@ -18,7 +18,7 @@ export function useCandidates() {
       setCandidates(data);
       setState("success");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al cargar candidatos");
+      setError(err instanceof Error ? err.message : "No se pudieron cargar los candidatos. Por favor, intenta de nuevo.");
       setState("error");
     }
   }, []);
@@ -41,10 +41,15 @@ export function useCandidate(id: string) {
     setError(null);
     try {
       const data = await getCandidateById(id);
+      if (!data) {
+        setError("Candidato no encontrado. Verifica el ID e intenta de nuevo.");
+        setState("error");
+        return;
+      }
       setCandidate(data);
       setState("success");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al cargar candidato");
+      setError(err instanceof Error ? err.message : "No se pudo cargar el candidato. Por favor, intenta de nuevo.");
       setState("error");
     }
   }, [id]);

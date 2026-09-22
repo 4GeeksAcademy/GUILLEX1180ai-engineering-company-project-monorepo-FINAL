@@ -9,7 +9,6 @@ import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { login, storeToken } from "@/lib/api";
-import type { ValidationErrorResponse, FieldError } from "@/lib/types";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -18,65 +17,22 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [fieldErrors, setFieldErrors] = useState<FieldError[]>([]);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    setFieldErrors([]);
 
     try {
       const response = await login({ email, password });
       storeToken(response.access_token);
       router.push("/");
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Error desconocido";
-
-      // Intentar extraer errores de validación por campo
-      try {
-        const body = JSON.parse(
-          (err instanceof Error ? err.message.split(": ").slice(1).join(": ") : "{}")
-        );
-        if (body?.detail && Array.isArray(body.detail)) {
-          setFieldErrors(body.detail as FieldError[]);
-        } else {
-          setError(typeof body?.detail === "string" ? body.detail : message);
-        }
-      } catch {
-        // Si el mensaje contiene un JSON en el body, extraerlo
-        const match = message.match(/\{.*\}/);
-        if (match) {
-          try {
-            const parsed = JSON.parse(match[0]) as ValidationErrorResponse;
-            if (Array.isArray(parsed.detail)) {
-              setFieldErrors(parsed.detail);
-            } else {
-              setError(parsed.detail);
-            }
-          } catch {
-            setError(message);
-          }
-        } else {
-          // Errores HTTP conocidos
-          if (message.includes("401") || message.includes("403")) {
-            setError("Credenciales inválidas. Verifica tu email y contraseña.");
-          } else if (message.includes("400") || message.includes("422")) {
-            setError("Datos inválidos. Revisa los campos del formulario.");
-          } else if (message.includes("000") || message.includes("Failed to fetch") || message.includes("TypeError")) {
-            setError("Error de conexión. Verifica que el servidor esté corriendo.");
-          } else {
-            setError(message);
-          }
-        }
-      }
+      setError(err instanceof Error ? err.message : "Error al iniciar sesión");
     } finally {
       setLoading(false);
     }
   };
-
-  const getFieldError = (field: string): string | undefined =>
-    fieldErrors.find((fe) => fe.field === field)?.message;
 
   return (
     <div className="mx-auto flex min-h-[70vh] max-w-md flex-col justify-center">
@@ -119,15 +75,8 @@ export default function LoginPage() {
               onChange={(e) => setEmail(e.target.value)}
               disabled={loading}
               placeholder="tu@correo.com"
-              className={`w-full rounded-lg border px-4 py-2.5 text-sm text-tf-dark placeholder-gray-400 outline-none transition-colors focus:ring-2 focus:ring-tf-blue/30 ${
-                getFieldError("email")
-                  ? "border-red-400 focus:border-red-500"
-                  : "border-gray-300 focus:border-tf-blue"
-              }`}
+              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-tf-dark placeholder-gray-400 outline-none transition-colors focus:border-tf-blue focus:ring-2 focus:ring-tf-blue/30"
             />
-            {getFieldError("email") && (
-              <p className="mt-1 text-xs text-red-600">{getFieldError("email")}</p>
-            )}
           </div>
 
           {/* Password */}
@@ -147,15 +96,8 @@ export default function LoginPage() {
               onChange={(e) => setPassword(e.target.value)}
               disabled={loading}
               placeholder="••••••••"
-              className={`w-full rounded-lg border px-4 py-2.5 text-sm text-tf-dark placeholder-gray-400 outline-none transition-colors focus:ring-2 focus:ring-tf-blue/30 ${
-                getFieldError("password")
-                  ? "border-red-400 focus:border-red-500"
-                  : "border-gray-300 focus:border-tf-blue"
-              }`}
+              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-tf-dark placeholder-gray-400 outline-none transition-colors focus:border-tf-blue focus:ring-2 focus:ring-tf-blue/30"
             />
-            {getFieldError("password") && (
-              <p className="mt-1 text-xs text-red-600">{getFieldError("password")}</p>
-            )}
           </div>
 
           {/* Submit */}

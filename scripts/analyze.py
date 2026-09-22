@@ -107,38 +107,50 @@ def exportar_csv(
     errores_por_tipo: Counter[str],
     total_filas: int,
     ruta_salida: str = "results.csv",
-) -> None:
-    """Exporta las métricas a un CSV (una fila por métrica)."""
+) -> bool:
+    """Exporta las métricas a un CSV (una fila por métrica).
+
+    Returns:
+        True si la exportación fue exitosa, False en caso de error.
+    """
     import csv as csv_mod
 
-    with open(ruta_salida, "w", newline="", encoding="utf-8") as f:
-        writer = csv_mod.writer(f)
-        writer.writerow(["metrica", "valor"])
+    try:
+        with open(ruta_salida, "w", newline="", encoding="utf-8") as f:
+            writer = csv_mod.writer(f)
+            writer.writerow(["metrica", "valor"])
 
-        writer.writerow(["total_registros", total_filas])
-        writer.writerow(["registros_validos", metricas["total_validos"]])
-        writer.writerow(["registros_invalidos", total_invalidos])
+            writer.writerow(["total_registros", total_filas])
+            writer.writerow(["registros_validos", metricas["total_validos"]])
+            writer.writerow(["registros_invalidos", total_invalidos])
 
-        for error, cantidad in errores_por_tipo.most_common():
-            writer.writerow([f"invalido_{error}", cantidad])
+            for error, cantidad in errores_por_tipo.most_common():
+                writer.writerow([f"invalido_{error}", cantidad])
 
-        for cat, count in metricas["categorias"].items():
-            writer.writerow([f"categoria_{cat}", count])
+            for cat, count in metricas["categorias"].items():
+                writer.writerow([f"categoria_{cat}", count])
 
-        for est, count in metricas["estados"].items():
-            writer.writerow([f"estado_{est}", count])
+            for est, count in metricas["estados"].items():
+                writer.writerow([f"estado_{est}", count])
 
-        writer.writerow([
-            "satisfaccion_media",
-            f"{metricas['satisfaccion_media']:.2f}" if metricas["satisfaccion_media"] is not None else "",
-        ])
-        writer.writerow([
-            "total_cerrados_con_puntuacion",
-            metricas["total_cerrados_con_puntuacion"],
-        ])
+            writer.writerow([
+                "satisfaccion_media",
+                f"{metricas['satisfaccion_media']:.2f}" if metricas["satisfaccion_media"] is not None else "",
+            ])
+            writer.writerow([
+                "total_cerrados_con_puntuacion",
+                metricas["total_cerrados_con_puntuacion"],
+            ])
 
-    print(f"  💾  Resultados exportados a: {ruta_salida}")
-    print()
+        print(f"  💾  Resultados exportados a: {ruta_salida}")
+        print()
+        return True
+    except OSError as e:
+        print(f"  ❌  Error al escribir el archivo '{ruta_salida}': {e}", file=sys.stderr)
+        return False
+    except Exception as e:
+        print(f"  ❌  Error inesperado al exportar CSV: {e}", file=sys.stderr)
+        return False
 
 
 # ═══════════════════════════════════════════════════════════
@@ -158,23 +170,33 @@ def main() -> None:
         print(f"Error: No se encuentra el archivo '{ruta_csv}'", file=sys.stderr)
         sys.exit(1)
 
-    # ── Carga ──
-    with open(ruta_csv, newline="", encoding="utf-8") as f:
-        reader = csv.DictReader(f)
-        # Validar columnas
-        if not reader.fieldnames:
-            print("Error: El archivo CSV está vacío o no tiene cabeceras.", file=sys.stderr)
-            sys.exit(1)
+    # ── Carga con manejo de errores ──
+    try:
+        with open(ruta_csv, newline="", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            # Validar columnas
+            if not reader.fieldnames:
+                print("Error: El archivo CSV está vacío o no tiene cabeceras.", file=sys.stderr)
+                sys.exit(1)
 
-        columnas_faltantes = [c for c in COLUMNAS_REQUERIDAS if c not in reader.fieldnames]
-        if columnas_faltantes:
-            print(
-                f"Error: Faltan columnas requeridas: {', '.join(columnas_faltantes)}",
-                file=sys.stderr,
-            )
-            sys.exit(1)
+            columnas_faltantes = [c for c in COLUMNAS_REQUERIDAS if c not in reader.fieldnames]
+            if columnas_faltantes:
+                print(
+                    f"Error: Faltan columnas requeridas: {', '.join(columnas_faltantes)}",
+                    file=sys.stderr,
+                )
+                sys.exit(1)
 
-        filas = list(reader)
+            filas = list(reader)
+    except UnicodeDecodeError:
+        print("Error: El archivo no está codificado en UTF-8.", file=sys.stderr)
+        sys.exit(1)
+    except csv.Error as e:
+        print(f"Error: Error al parsear el archivo CSV: {e}", file=sys.stderr)
+        sys.exit(1)
+    except OSError as e:
+        print(f"Error: No se pudo leer el archivo '{ruta_csv}': {e}", file=sys.stderr)
+        sys.exit(1)
 
     if not filas:
         print("Error: El archivo CSV no contiene datos.", file=sys.stderr)
@@ -210,7 +232,8 @@ def main() -> None:
     try:
         respuesta = input("  ¿Deseas exportar los resultados a CSV? [s / n]: ").strip().lower()
         if respuesta == "s":
-            exportar_csv(metricas, total_invalidos, errores_por_tipo, total_filas)
+            if not exportar_csv(metricas, total_invalidos, errores_por_tipo, total_filas):
+                sys.exit(1)
         else:
             print("  Exportación omitida.")
     except (EOFError, KeyboardInterrupt):

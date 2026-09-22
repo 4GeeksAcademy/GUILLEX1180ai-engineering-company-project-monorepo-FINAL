@@ -11,6 +11,8 @@ export default function NotesSection({ candidateId }: { candidateId: string }) {
   const [newNote, setNewNote] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [addError, setAddError] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   // ─── Cargar notas ────────────────────────────────────────────────────
   const fetchNotes = useCallback(async () => {
@@ -37,12 +39,13 @@ export default function NotesSection({ candidateId }: { candidateId: string }) {
     if (!content) return;
 
     setSubmitting(true);
+    setAddError(null);
     try {
       const created = await addNote(candidateId, { content });
       setNotes((prev) => [created, ...prev]);
       setNewNote("");
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Error al añadir nota");
+      setAddError(err instanceof Error ? err.message : "Error al añadir nota");
     } finally {
       setSubmitting(false);
     }
@@ -53,11 +56,12 @@ export default function NotesSection({ candidateId }: { candidateId: string }) {
     if (!confirm("¿Eliminar esta nota?")) return;
 
     setDeletingId(noteId);
+    setDeleteError(null);
     try {
       await deleteNote(candidateId, noteId);
       setNotes((prev) => prev.filter((n) => n.id !== noteId));
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Error al eliminar nota");
+      setDeleteError(err instanceof Error ? err.message : "Error al eliminar nota");
     } finally {
       setDeletingId(null);
     }
@@ -88,12 +92,22 @@ export default function NotesSection({ candidateId }: { candidateId: string }) {
         </button>
       </form>
 
+      {/* Error al añadir */}
+      {addError && (
+        <p className="text-sm text-red-600 mb-4">{addError}</p>
+      )}
+
       {/* Estado de carga */}
       {loading && <p className="text-sm text-gray-400">Cargando notas…</p>}
 
       {/* Error */}
       {error && (
         <p className="text-sm text-red-600 mb-4">{error}</p>
+      )}
+
+      {/* Error al eliminar */}
+      {deleteError && (
+        <p className="text-sm text-red-600 mb-4">{deleteError}</p>
       )}
 
       {/* Lista de notas */}

@@ -27,7 +27,9 @@ export default function SupplierDetailPage() {
   const [editingStatus, setEditingStatus] = useState(false);
   const [newStatus, setNewStatus] = useState<SupplierStatus>("activo");
   const [statusSubmitting, setStatusSubmitting] = useState(false);
+  const [statusError, setStatusError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   if (state === "loading") return <LoadingSpinner message="Cargando proveedor…" />;
 
@@ -48,14 +50,29 @@ export default function SupplierDetailPage() {
 
   const handleStatusSubmit = async () => {
     setStatusSubmitting(true);
-    try { await updateStatus(newStatus); setEditingStatus(false); }
-    finally { setStatusSubmitting(false); }
+    setStatusError(null);
+    try {
+      await updateStatus(newStatus);
+      setEditingStatus(false);
+    } catch (err) {
+      setStatusError(err instanceof Error ? err.message : "Error al cambiar estado");
+    } finally {
+      setStatusSubmitting(false);
+    }
   };
 
   const handleDelete = async () => {
     if (!confirm("¿Estás seguro de eliminar este proveedor?")) return;
     setDeleting(true);
-    try { await remove(); router.push("/suppliers"); } finally { setDeleting(false); }
+    setDeleteError(null);
+    try {
+      await remove();
+      router.push("/suppliers");
+    } catch (err) {
+      setDeleteError(err instanceof Error ? err.message : "Error al eliminar proveedor");
+    } finally {
+      setDeleting(false);
+    }
   };
 
   return (
@@ -70,10 +87,13 @@ export default function SupplierDetailPage() {
           </div>
           <p className="mt-1 text-sm text-gray-500">ID: {supplier.id} · Última actualización: {new Date(supplier.updated_at).toLocaleString("es-ES")}</p>
         </div>
-        <button onClick={handleDelete} disabled={deleting}
-          className="rounded-lg border border-red-300 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50">
-          {deleting ? "Eliminando…" : "Eliminar proveedor"}
-        </button>
+        <div className="flex flex-col items-end gap-2">
+          <button onClick={handleDelete} disabled={deleting}
+            className="rounded-lg border border-red-300 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50">
+            {deleting ? "Eliminando…" : "Eliminar proveedor"}
+          </button>
+          {deleteError && <p className="text-xs text-red-600">{deleteError}</p>}
+        </div>
       </div>
 
       <div className="mb-8 grid gap-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
@@ -139,9 +159,10 @@ export default function SupplierDetailPage() {
                   className="rounded-lg bg-tf-blue px-3 py-2 text-sm text-white hover:bg-tf-blue-dark transition-colors disabled:opacity-50">
                   {statusSubmitting ? "Guardando…" : "Guardar"}
                 </button>
-                <button onClick={() => setEditingStatus(false)}
+                <button onClick={() => { setEditingStatus(false); setStatusError(null); }}
                   className="rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50">Cancelar</button>
               </div>
+              {statusError && <p className="mt-2 text-xs text-red-600">{statusError}</p>}
             )}
           </div>
           {!editingStatus && (

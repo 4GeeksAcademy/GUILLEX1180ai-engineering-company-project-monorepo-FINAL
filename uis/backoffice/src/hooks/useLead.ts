@@ -26,10 +26,15 @@ export function useLead(id: number): UseLeadReturn {
     setError(null);
     try {
       const data = await getLeadById(id);
+      if (!data) {
+        setError("Lead no encontrado");
+        setState("error");
+        return;
+      }
       setLead(data);
       setState("success");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al cargar lead");
+      setError(err instanceof Error ? err.message : "Error al cargar el lead. Por favor, intenta de nuevo.");
       setState("error");
     }
   }, [id]);
