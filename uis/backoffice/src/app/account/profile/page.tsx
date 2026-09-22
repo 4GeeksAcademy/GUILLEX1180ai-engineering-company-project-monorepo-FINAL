@@ -77,7 +77,6 @@ export default function AccountProfilePage() {
 
       if (Object.keys(payload).length === 0) {
         setSuccessMsg("No hay cambios que guardar.");
-        setSaving(false);
         return;
       }
 

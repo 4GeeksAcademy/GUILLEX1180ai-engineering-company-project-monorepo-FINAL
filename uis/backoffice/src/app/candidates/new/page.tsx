@@ -65,8 +65,7 @@ export default function NewLeadPage() {
     setSending(true);
     setError(null);
     try {
-      // En un entorno real se crearía el lead aquí.
-      // Por ahora simulamos éxito y redirigimos.
+      await createLead(form);
       setSuccess(true);
       setTimeout(() => router.push("/"), 800);
     } catch (err) {

@@ -4,6 +4,7 @@ Idempotente: no duplica registros si ya existen.
 Ejecutar con: uv run seed
 """
 
+import sys
 from datetime import datetime, timezone
 
 from database import suppliers_table, SupplierQuery
@@ -77,21 +78,25 @@ def seed():
     """Inserta los proveedores iniciales si no existen (idempotente)."""
     inserted = 0
 
-    for supplier_data in INITIAL_SUPPLIERS:
-        # Buscar por nombre para evitar duplicados
-        existing = suppliers_table.get(SupplierQuery.nombre == supplier_data["nombre"])
-        if existing is not None:
-            continue
+    try:
+        for supplier_data in INITIAL_SUPPLIERS:
+            # Buscar por nombre para evitar duplicados
+            existing = suppliers_table.get(SupplierQuery.nombre == supplier_data["nombre"])
+            if existing is not None:
+                continue
 
-        now = datetime.now(timezone.utc).isoformat()
-        supplier_data["updated_at"] = now
-        suppliers_table.insert(supplier_data)
-        inserted += 1
+            now = datetime.now(timezone.utc).isoformat()
+            supplier_data["updated_at"] = now
+            suppliers_table.insert(supplier_data)
+            inserted += 1
 
-    print(f"✅ Seed completado. Se insertaron {inserted} proveedor(es) nuevo(s).")
+        print(f"✅ Seed completado. Se insertaron {inserted} proveedor(es) nuevo(s).")
 
-    total = len(suppliers_table)
-    print(f"📊 Total de proveedores en base de datos: {total}")
+        total = len(suppliers_table)
+        print(f"📊 Total de proveedores en base de datos: {total}")
+    except Exception as e:
+        print(f"❌ Error al escribir en la base de datos: {e}", file=sys.stderr)
+        sys.exit(1)
 
 
 if __name__ == "__main__":

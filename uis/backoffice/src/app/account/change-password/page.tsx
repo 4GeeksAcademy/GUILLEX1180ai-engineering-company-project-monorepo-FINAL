@@ -91,22 +91,10 @@ export default function ChangePasswordPage() {
     } catch (err) {
       const message = err instanceof Error ? err.message : "Error desconocido";
 
-      if (message.includes("400")) {
-        const match = message.match(/\{.*\}/);
-        if (match) {
-          try {
-            const parsed = JSON.parse(match[0]);
-            setError(parsed.detail || "Error al cambiar la contraseña.");
-          } catch {
-            setError("Error al cambiar la contraseña. Verifica tus datos.");
-          }
-        } else {
-          setError("Error al cambiar la contraseña. Verifica tus datos.");
-        }
-      } else if (message.includes("401")) {
+      if (message.includes("sesión ha expirado") || message.includes("401")) {
         setError("Sesión expirada. Serás redirigido al inicio de sesión.");
         setTimeout(() => logout(), 1500);
-      } else if (message.includes("Failed to fetch") || message.includes("TypeError")) {
+      } else if (message.includes("conexión") || message.includes("Failed to fetch")) {
         setError("Error de conexión. Verifica que el servidor esté corriendo.");
       } else {
         setError(message);

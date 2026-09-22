@@ -34,7 +34,7 @@ function toCandidate(raw: RawCandidate): Candidate {
     years_experience: raw.experience_years,
     application_date: raw.applied_at,
     updated_at: raw.updated_at,
-    notes_count: raw.notes_count,
+    notes_count: raw.notes_count ?? 0,
   };
 }
 
