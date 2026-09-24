@@ -6,7 +6,8 @@
   "main": "types/index.ts",
   "types": "types/index.ts",
   "scripts": {
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "jest"
   },
   "keywords": [
     "types",
@@ -15,6 +16,11 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
+    "@swc/core": "^1.16.2",
+    "@swc/jest": "^0.2.39",
+    "@types/jest": "^30.0.0",
+    "jest": "^30.5.2",
+    "ts-jest": "^29.4.13",
     "typescript": "^7.0.2"
   }
 }
