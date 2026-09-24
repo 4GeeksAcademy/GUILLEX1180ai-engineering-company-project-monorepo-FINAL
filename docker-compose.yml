@@ -38,6 +38,7 @@ services:
       - /app/backoffice/node_modules
     environment:
       - NODE_ENV=development
+      - BACKEND_HOST=backend
     env_file:
       - .env
     networks:
