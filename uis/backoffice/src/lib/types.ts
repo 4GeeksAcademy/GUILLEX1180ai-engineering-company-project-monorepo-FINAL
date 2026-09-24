@@ -265,3 +265,105 @@ export function supplierStatusColor(status: string): string {
     ? "bg-green-100 text-green-800 border border-green-300"
     : "bg-red-100 text-red-800 border border-red-300";
 }
+
+/* ─── Incidentes ─── */
+
+export type IncidentStatus =
+  | "open"
+  | "in_progress"
+  | "resolved"
+  | "discarded";
+
+export type IncidentOrigin = "customer" | "branch" | "internal";
+
+export type IncidentCategory =
+  | "Retraso en entrega"
+  | "Producto dañado"
+  | "Devolución incorrecta"
+  | "Error de picking"
+  | "Problema de inventario";
+
+export interface Incident {
+  id: string;
+  title: string;
+  description: string;
+  category: IncidentCategory;
+  status: IncidentStatus;
+  origin: IncidentOrigin;
+  branch: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface IncidentFormData {
+  title: string;
+  description: string;
+  category: IncidentCategory;
+  origin: IncidentOrigin;
+  branch: string;
+}
+
+export interface IncidentSummary {
+  total: number;
+  by_status: Record<string, number>;
+  by_category: Record<string, number>;
+  by_origin: Record<string, number>;
+  by_branch: Record<string, number>;
+}
+
+export const INCIDENT_STATUS_OPTIONS: IncidentStatus[] = [
+  "open",
+  "in_progress",
+  "resolved",
+  "discarded",
+];
+
+export const INCIDENT_ORIGIN_OPTIONS: IncidentOrigin[] = [
+  "customer",
+  "branch",
+  "internal",
+];
+
+export const INCIDENT_CATEGORY_OPTIONS: IncidentCategory[] = [
+  "Retraso en entrega",
+  "Producto dañado",
+  "Devolución incorrecta",
+  "Error de picking",
+  "Problema de inventario",
+];
+
+/** Sedes de TrackFlow según CONTEXT.md (EE.UU. + España) + central. */
+export const BRANCH_OPTIONS: string[] = [
+  "Los Ángeles",
+  "Zaragoza",
+  "central",
+];
+
+/** Transiciones válidas del ciclo de vida de una incidencia. */
+export const VALID_TRANSITIONS: Record<IncidentStatus, IncidentStatus[]> = {
+  open: ["in_progress", "discarded"],
+  in_progress: ["resolved", "discarded"],
+  resolved: [],
+  discarded: [],
+};
+
+export const FINAL_STATUSES: IncidentStatus[] = ["resolved", "discarded"];
+
+export function incidentStatusColor(status: string): string {
+  const map: Record<string, string> = {
+    open: "bg-blue-100 text-blue-800",
+    in_progress: "bg-amber-100 text-amber-800",
+    resolved: "bg-green-100 text-green-800",
+    discarded: "bg-gray-100 text-gray-500",
+  };
+  return map[status] ?? "bg-gray-100 text-gray-800";
+}
+
+export function incidentOriginColor(origin: string): string {
+  const map: Record<string, string> = {
+    customer: "bg-violet-100 text-violet-800",
+    branch: "bg-cyan-100 text-cyan-800",
+    internal: "bg-orange-100 text-orange-800",
+  };
+  return map[origin] ?? "bg-gray-100 text-gray-800";
+}

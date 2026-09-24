@@ -23,6 +23,9 @@ import type {
   ChangePasswordPayload,
   ChangePasswordResponse,
   ApiResponse,
+  Incident,
+  IncidentFormData,
+  IncidentSummary,
 } from "./types";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
@@ -304,4 +307,50 @@ export function logout(): void {
   if (typeof window !== "undefined") {
     window.location.href = "/login";
   }
+}
+
+/* ─── Incidents CRUD ─── */
+
+export async function createIncident(data: IncidentFormData): Promise<Incident> {
+  return fetchAPI<Incident>("/incidents", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+export async function getAllIncidents(filters?: {
+  status?: string;
+  origin?: string;
+  branch?: string;
+  category?: string;
+}): Promise<Incident[]> {
+  const params = new URLSearchParams();
+  if (filters?.status) params.set("status", filters.status);
+  if (filters?.origin) params.set("origin", filters.origin);
+  if (filters?.branch) params.set("branch", filters.branch);
+  if (filters?.category) params.set("category", filters.category);
+  const qs = params.toString();
+  return fetchAPI<Incident[]>(`/incidents${qs ? `?${qs}` : ""}`);
+}
+
+export async function getIncidentById(id: string): Promise<Incident> {
+  return fetchAPI<Incident>(`/incidents/${id}`);
+}
+
+export async function updateIncidentStatus(
+  id: string,
+  status: string
+): Promise<Incident> {
+  return fetchAPI<Incident>(`/incidents/${id}/status`, {
+    method: "PATCH",
+    body: JSON.stringify({ status }),
+  });
+}
+
+export async function getIncidentSummary(): Promise<IncidentSummary> {
+  return fetchAPI<IncidentSummary>("/incidents/summary");
+}
+
+export async function deleteIncident(id: string): Promise<void> {
+  await fetchAPI<void>(`/incidents/${id}`, { method: "DELETE" });
 }

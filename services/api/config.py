@@ -13,6 +13,9 @@ class Settings(BaseSettings):
     app_version: str = "1.0.0"
     api_prefix: str = "/api/v1"
 
+    # Frontend
+    frontend_url: str = "http://localhost:3001"
+
     # CORS
     cors_origins: list[str] = [
         "http://localhost:3000",

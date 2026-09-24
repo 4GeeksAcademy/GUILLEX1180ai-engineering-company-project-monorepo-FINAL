@@ -43,12 +43,26 @@ export default function RootLayout({
                 >
                   Proveedores
                 </Link>
-                <Link
-                  href="/incidents"
-                  className="hover:text-tf-blue transition-colors"
-                >
-                  Incidencias
-                </Link>
+                <span className="flex items-center gap-4 rounded-lg bg-gray-50 px-3 py-1.5">
+                  <Link
+                    href="/incidents"
+                    className="hover:text-tf-blue transition-colors"
+                  >
+                    Incidencias
+                  </Link>
+                  <Link
+                    href="/incidents/new"
+                    className="hover:text-tf-blue transition-colors"
+                  >
+                    + Nueva
+                  </Link>
+                  <Link
+                    href="/incidents/summary"
+                    className="hover:text-tf-blue transition-colors"
+                  >
+                    📊 Resumen
+                  </Link>
+                </span>
                 <Link
                   href="/candidates/new"
                   className="rounded-lg bg-tf-blue px-4 py-2 text-white hover:bg-tf-blue-dark transition-colors"
