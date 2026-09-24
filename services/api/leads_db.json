@@ -1,1 +1,1 @@
-{"leads": {"1": {"company_name": "TestCorp", "contact_person": "Juan Test", "email": "juan@test.com", "phone": "+123456789", "website": null, "country": "", "product_type": "", "monthly_volume": "", "services": [], "has_3pl": "", "comments": null, "status": "contacted", "stage": "discovery", "created_at": "2026-09-18T22:34:18.608639+00:00", "updated_at": "2026-09-18T22:35:37.882504+00:00"}}, "notes": {"1": {"lead_id": 1, "content": "Nota de prueba", "created_at": "2026-09-18T22:35:50.577631+00:00"}}}
+{"leads": {}, "notes": {}}
