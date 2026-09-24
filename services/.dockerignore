@@ -1,0 +1,28 @@
+# ── Python ──
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# ── Entorno ──
+.env*
+.venv/
+env/
+
+# ── Tests (no necesarios en producción) ──
+tests/
+test_*.py
+
+# ── Logs ──
+*.log
+
+# ── IDE / Editor ──
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ── Sistema ──
+.DS_Store
+Thumbs.db

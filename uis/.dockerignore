@@ -1,0 +1,11 @@
+# ── Dependencias ──
+node_modules
+
+# ── Builds de Next.js ──
+.next
+
+# ── Variables de entorno ──
+.env*
+
+# ── Logs ──
+*.log

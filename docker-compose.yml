@@ -1,0 +1,75 @@
+# =============================================================================
+# TrackFlow — Docker Compose (orquestación local)
+#
+# Requisitos:
+#   - Docker Engine 24+ y Docker Compose 2.20+
+#   - Archivo .env en la raíz (ver .env.example)
+#
+# Arranque:
+#   docker compose up --build
+#
+# URLs locales:
+#   - Website    → http://localhost:3000
+#   - Backoffice → http://localhost:3001
+#   - API        → http://localhost:8001
+#   - API Docs   → http://localhost:8001/api/v1/docs
+# =============================================================================
+
+services:
+
+  # ────────────────────────────────────────────────────────────────
+  # Frontend / Interfaces
+  # Construye desde /uis/ y arranca website (3000) y backoffice (3001)
+  # simultáneamente en modo desarrollo con hot-reload.
+  # ────────────────────────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./uis
+      dockerfile: Dockerfile
+    container_name: trackflow-frontend
+    ports:
+      - "3000:3000"   # website
+      - "3001:3001"   # backoffice
+    volumes:
+      # Bind mount del código fuente para hot-reload
+      - ./uis:/app
+      # Volúmenes anónimos para preservar node_modules del contenedor
+      - /app/website/node_modules
+      - /app/backoffice/node_modules
+    environment:
+      - NODE_ENV=development
+    env_file:
+      - .env
+    networks:
+      - trackflow-network
+    restart: unless-stopped
+
+  # ────────────────────────────────────────────────────────────────
+  # Backend (API TrackFlow)
+  # Construye desde /services/api con Uvicorn + --reload.
+  # ────────────────────────────────────────────────────────────────
+  backend:
+    build:
+      context: .
+      dockerfile: services/Dockerfile
+    container_name: trackflow-backend
+    ports:
+      - "8001:8001"
+    volumes:
+      # Bind mount del monorepo completo para hot-reload de la API
+      - .:/app
+    environment:
+      - PYTHONPATH=/app
+    env_file:
+      - .env
+    networks:
+      - trackflow-network
+    restart: unless-stopped
+
+# ────────────────────────────────────────────────────────────────
+# Red compartida con nombre explícito
+# ────────────────────────────────────────────────────────────────
+networks:
+  trackflow-network:
+    name: trackflow-network
+    driver: bridge
