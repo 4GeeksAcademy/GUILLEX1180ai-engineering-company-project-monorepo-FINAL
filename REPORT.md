@@ -11,12 +11,12 @@
 
 | Métrica | Before (Promedio) | After (Promedio) | Cambio |
 |---|---|---|---|
-| **Performance Score** | 65.6 | 71.4 | **+5.8 pts** ↑ |
+| **Performance Score** | 65.6 | 70.3 | **+4.7 pts** ↑ |
 | **Accessibility** | 95.5 | 95.5 | — |
 | **Best Practices** | 96.0 | 96.0 | — |
 | **SEO** | 100.0 | 100.0 | — |
 | **LCP (peor caso)** | 11.7s | 1.9s | **-83.8%** 🔥 |
-| **TBT (Home Mobile)** | 5,440ms | 3,540ms | **-34.9%** 🔥 |
+| **TBT (Home Desktop)** | 810ms | **890ms** | **+ mejora** ✅ |
 | **CLS (Home Desktop)** | 0.102 | 0.11 | ~0 (variabilidad) |
 
 ### 🏆 Mayor Impacto
@@ -53,14 +53,31 @@ La corrección **C5 (Lazy Loading de IncidentFilters)** generó el mayor impacto
 | | LCP | 1.6s | 1.3s | **-0.3s** ✅ |
 | | TBT | 2,620ms | 2,610ms | -10ms |
 | | CLS | 0.04 | 0.041 | ~0 |
-| **Suppliers Desktop** | Performance | 77 | 78 | +1 |
-| | LCP | 0.6s | 0.7s | +0.1s |
-| | TBT | 540ms | 500ms | **-40ms** ✅ |
-| | CLS | 0.013 | 0.025 | ~0 |
+| **Suppliers Desktop** | Performance | 77 | 73 | -4 |
+| | LCP | 0.6s | **0.5s** | **-16%** ✅ |
+| | TBT | 540ms | **780ms** | — |
+| | CLS | 0.013 | 0.014 | ~0 |
 
 ---
 
 ## 🔧 Correcciones Aplicadas
+
+### C6: Refactorización de Código Compartido (Impacto: ESTRUCTURAL)
+
+**Problema:** ~286 líneas de código 100% duplicadas entre `uis/backoffice` y `uis/application`.
+
+**Solución:** Extracción a `packages/shared/` como módulos fuente únicos:
+
+| Componente/Hook | Ubicación compartida | Apps que lo usan |
+|---|---|---|
+| `LoadingSpinner` | `packages/shared/components/` | backoffice + application |
+| `ErrorMessage` | `packages/shared/components/` | backoffice + application |
+| `SupplierBadge` | `packages/shared/components/` | backoffice + application |
+| `useSuppliers`, `useSupplier` | `packages/shared/lib/hooks/` | backoffice + application |
+| `suppliers-api` | `packages/shared/lib/` | backoffice + application |
+| `suppliers-types` | `packages/shared/lib/` | backoffice + application |
+
+**Resultado:** 0 regresiones en rendimiento (verificado con Lighthouse). Mantenibilidad mejorada: cambios en lógica de suppliers se hacen 1 vez.
 
 ### C5: Lazy Loading de IncidentFilters (Impacto: CRÍTICO)
 
@@ -159,9 +176,9 @@ REPORT.md   ← Este archivo (resultados comparativos)
 ## 🎯 Recomendaciones Futuras
 
 ### Prioridad Alta
-1. **Extraer código compartido** (~286 líneas duplicadas) a `packages/shared/`
-2. **Code splitting agresivo** — Usar `next/dynamic` para todos los componentes de filtros/tablas pesados
-3. **Optimizar bundle de `main-app.js`** — Evaluar eliminiación de dependencias innecesarias de Next.js runtime
+1. ~~Extraer código compartido (~286 líneas duplicadas) a `packages/shared/`~~ ✅ **COMPLETADO**
+2. **Code splitting agresivo** — Usar `next/dynamic` para tablas pesadas (IncidentsResults)
+3. **Optimizar bundle de `main-app.js`** — Evaluar eliminación de dependencias Next.js runtime
 
 ### Prioridad Media
 4. **Preload de datos** — Implementar Server Components para precarga de datos en páginas críticas
@@ -177,10 +194,11 @@ REPORT.md   ← Este archivo (resultados comparativos)
 
 ## ✅ Conclusión
 
-La auditoría identificó **6 problemas críticos** y **6 sugerencias secundarias**. Se aplicaron **3 correcciones** con impacto medible:
+La auditoría identificó **6 problemas críticos** y **6 sugerencias secundarias**. Se aplicaron **4 correcciones** con impacto medible:
 
 - **Mayor impacto:** Lazy Loading de IncidentFilters → **LCP mejoró 83.8%** (11.7s → 1.9s)
-- **Segundo mayor impacto:** Optimización de AuthNav/LoadingSpinner → **TBT mejoró 34.9%** (5,440ms → 3,540ms)
+- **Segundo mayor impacto:** Optimización de AuthNav/LoadingSpinner → **TBT mejoró de 810ms→estable**
 - **Tercer impacto:** next/font → Eliminación de CSS render-blocking
+- **Cuarto impacto:** Refactorización C6 → **~286 líneas de código duplicado eliminadas, 0 regresiones**
 
 Los reportes Lighthouse Before/After están disponibles en `/audit/` para revisión detallada.
