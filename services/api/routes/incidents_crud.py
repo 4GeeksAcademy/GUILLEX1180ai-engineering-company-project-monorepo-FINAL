@@ -34,6 +34,7 @@ from incidents_db import (
     update_incident_status,
     delete_incident,
 )
+from cache import api_cache
 from models import (
     IncidentCategory,
     IncidentCreate,
@@ -119,6 +120,8 @@ async def create(payload: IncidentCreate):
             status_code=400,
             detail=[{"field": "branch", "message": str(exc)}],
         )
+    # Invalidar caché de incidencias (summary + listados con cualquier filtro)
+    api_cache.invalidate_prefix("incidents:")
     return incidente
 
 
@@ -133,6 +136,7 @@ async def list_all(
 
     Los filtros se aplican como intersección (AND). Si la base de datos está
     vacía o no hay coincidencias, devuelve una lista vacía (200), nunca error.
+    Caché con TTL 15s — los datos se invalidan en cada escritura.
     """
     # Validar que los filtros correspondan a valores conocidos (400 si no).
     for filtro, valores_validos, nombre in (
@@ -151,12 +155,20 @@ async def list_all(
                 }],
             )
 
-    return list_incidents(
+    # ── Caché: clave = method:path:filtros serializados ──
+    cache_key = f"incidents:list:{status or ''}:{origin or ''}:{branch or ''}:{category or ''}"
+    cached = api_cache.get(cache_key)
+    if cached is not None:
+        return cached
+
+    result = list_incidents(
         status=status,
         category=category,
         origin=origin,
         branch=branch,
     )
+    api_cache.set(cache_key, result, ttl=15.0)
+    return result
 
 
 @router.get("/summary", response_model=IncidentSummaryResponse)
@@ -170,7 +182,14 @@ async def summary():
     - by_branch: conteo por sede.
 
     Si la base de datos está vacía, devuelve métricas en cero (nunca error).
+    Caché con TTL 30s — datos agregados semi-estáticos.
     """
+    # ── Caché: summary es global (sin filtros por usuario) ──
+    cache_key = "incidents:summary"
+    cached = api_cache.get(cache_key)
+    if cached is not None:
+        return cached
+
     docs = incidents_table.all()
 
     # Inicializamos los contadores con todos los valores conocidos para que
@@ -187,13 +206,15 @@ async def summary():
         branch = doc.get("branch") or "central"
         by_branch[branch] += 1
 
-    return IncidentSummaryResponse(
+    result = IncidentSummaryResponse(
         total=len(docs),
         by_status=dict(by_status),
         by_category=dict(by_category),
         by_origin=dict(by_origin),
         by_branch=dict(by_branch),
     )
+    api_cache.set(cache_key, result, ttl=30.0)
+    return result
 
 
 @router.get("/{incident_id}", response_model=IncidentResponse)
@@ -228,6 +249,8 @@ async def change_status(incident_id: str, payload: IncidentUpdateStatus):
     actualizado = update_incident_status(incident_id, payload.status)
     if actualizado is None:
         raise HTTPException(status_code=404, detail="Incidencia no encontrada.")
+    # Invalidar caché de incidencias tras cambio de estado
+    api_cache.invalidate_prefix("incidents:")
     return actualizado
 
 
@@ -237,4 +260,6 @@ async def remove(incident_id: str):
     borrado = delete_incident(incident_id)
     if not borrado:
         raise HTTPException(status_code=404, detail="Incidencia no encontrada.")
+    # Invalidar caché de incidencias tras eliminación
+    api_cache.invalidate_prefix("incidents:")
     return None

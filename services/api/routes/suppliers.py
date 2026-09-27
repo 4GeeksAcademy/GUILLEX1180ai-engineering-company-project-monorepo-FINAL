@@ -21,6 +21,7 @@ from models import (
     SupplierUpdateRate,
     SupplierUpdateStatus,
 )
+from cache import api_cache
 
 router = APIRouter(prefix="/suppliers", tags=["Suppliers"])
 
@@ -51,6 +52,8 @@ async def create_supplier(payload: SupplierCreate):
 
     doc_id = suppliers_table.insert(doc_data)
     doc = suppliers_table.get(doc_id=doc_id)
+    # Invalidar caché de proveedores tras creación
+    api_cache.invalidate_prefix("suppliers:")
     return _doc_to_response(doc)
 
 
@@ -59,7 +62,16 @@ async def list_suppliers(
     pais: Optional[str] = Query(None, description="Filtrar por país (Ej: Estados Unidos)"),
     categoria: Optional[str] = Query(None, description="Filtrar por categoría (Ej: Electrónica)"),
 ):
-    """Lista proveedores con filtros opcionales por país y categoría."""
+    """Lista proveedores con filtros opcionales por país y categoría.
+
+    Caché con TTL 60s — catálogo de baja frecuencia de cambios.
+    """
+    # ── Caché: clave = filtros serializados ──
+    cache_key = f"suppliers:list:{pais or ''}:{categoria or ''}"
+    cached = api_cache.get(cache_key)
+    if cached is not None:
+        return cached
+
     all_docs = suppliers_table.all()
     results = []
 
@@ -72,6 +84,7 @@ async def list_suppliers(
                 continue
         results.append(_doc_to_response(doc))
 
+    api_cache.set(cache_key, results, ttl=60.0)
     return results
 
 
@@ -97,6 +110,8 @@ async def update_supplier_rate(supplier_id: int, payload: SupplierUpdateRate):
         doc_ids=[supplier_id],
     )
     updated = suppliers_table.get(doc_id=supplier_id)
+    # Invalidar caché de proveedores tras actualización de tarifa
+    api_cache.invalidate_prefix("suppliers:")
     return _doc_to_response(updated)
 
 
@@ -113,6 +128,8 @@ async def update_supplier_status(supplier_id: int, payload: SupplierUpdateStatus
         doc_ids=[supplier_id],
     )
     updated = suppliers_table.get(doc_id=supplier_id)
+    # Invalidar caché de proveedores tras cambio de estado
+    api_cache.invalidate_prefix("suppliers:")
     return _doc_to_response(updated)
 
 
@@ -123,3 +140,5 @@ async def delete_supplier(supplier_id: int):
     if doc is None:
         raise HTTPException(status_code=404, detail="Proveedor no encontrado")
     suppliers_table.remove(doc_ids=[supplier_id])
+    # Invalidar caché de proveedores tras eliminación
+    api_cache.invalidate_prefix("suppliers:")
