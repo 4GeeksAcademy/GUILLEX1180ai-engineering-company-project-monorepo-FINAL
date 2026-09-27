@@ -20,7 +20,7 @@ Manejo de errores:
 from __future__ import annotations
 
 from collections import Counter
-from typing import Any, Optional
+from typing import Optional
 
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import ValidationError
@@ -40,6 +40,7 @@ from models import (
     IncidentOrigin,
     IncidentResponse,
     IncidentStatus,
+    IncidentSummaryResponse,
     IncidentUpdateStatus,
 )
 # Constantes compartidas — única fuente de verdad para el ciclo de vida
@@ -158,7 +159,7 @@ async def list_all(
     )
 
 
-@router.get("/summary", response_model=dict[str, Any])
+@router.get("/summary", response_model=IncidentSummaryResponse)
 async def summary():
     """Devuelve métricas agregadas de todas las incidencias.
 
@@ -186,13 +187,13 @@ async def summary():
         branch = doc.get("branch") or "central"
         by_branch[branch] += 1
 
-    return {
-        "total": len(docs),
-        "by_status": dict(by_status),
-        "by_category": dict(by_category),
-        "by_origin": dict(by_origin),
-        "by_branch": dict(by_branch),
-    }
+    return IncidentSummaryResponse(
+        total=len(docs),
+        by_status=dict(by_status),
+        by_category=dict(by_category),
+        by_origin=dict(by_origin),
+        by_branch=dict(by_branch),
+    )
 
 
 @router.get("/{incident_id}", response_model=IncidentResponse)

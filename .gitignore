@@ -63,3 +63,4 @@ venv/
 results.csv
 scripts/results.csv
 *.db.json
+*_db.json

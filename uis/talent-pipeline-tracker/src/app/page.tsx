@@ -55,12 +55,14 @@ function CandidateList() {
       {state === "success" && candidates.length > 0 && <CandidateFilters />}
 
       {/* Estado: cargando */}
-      {state === "loading" && <LoadingSpinner message="Cargando candidatos…" />}
+      {state === "loading" && <LoadingSpinner message="Cargando candidatos…" fullPage />}
 
       {/* Estado: error */}
       {state === "error" && (
         <ErrorMessage
           message={error ?? "Error desconocido"}
+          onRetry={refetch}
+          fullPage
         />
       )}
 

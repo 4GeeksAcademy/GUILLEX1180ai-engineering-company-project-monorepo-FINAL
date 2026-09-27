@@ -117,15 +117,17 @@ export default function LeadDetailPage({
   );
 
   if (state === "loading") {
-    return <LoadingSpinner message="Cargando lead…" />;
+    return <LoadingSpinner message="Cargando lead…" fullPage />;
   }
 
   if (state === "error") {
     return (
       <ErrorMessage
         title="Error al cargar el lead"
-        message={error ?? "No se pudo obtener la información del lead."}
+        message={error ?? "No se pudo obtener la información del lead. Verifica que el servidor backend esté funcionando."}
         showBack
+        onRetry={refetch}
+        fullPage
       />
     );
   }
@@ -136,6 +138,7 @@ export default function LeadDetailPage({
         title="Lead no encontrado"
         message="El lead solicitado no existe o ha sido eliminado."
         showBack
+        onRetry={refetch}
       />
     );
   }

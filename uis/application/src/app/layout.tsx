@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import Link from "next/link";
 import "./globals.css";
+
+const inter = Inter({ subsets: ["latin"], display: "swap" });
 
 export const metadata: Metadata = {
   title: "TrackFlow — Proveedores",
@@ -15,7 +18,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es">
-      <body className="min-h-screen bg-tf-gray font-sans antialiased">
+      <body className={`min-h-screen bg-tf-gray antialiased ${inter.className}`}>
         <header className="sticky top-0 z-50 border-b border-gray-200 bg-white shadow-sm">
           <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
             <Link href="/suppliers" className="flex items-center gap-2">

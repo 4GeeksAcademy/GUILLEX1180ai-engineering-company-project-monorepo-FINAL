@@ -1,7 +1,6 @@
 # =============================================================================
-# TrackFlow — Dockerfile del backend (/services)
-# Basado en Python oficial, instala uv y las dependencias del API.
-# Expone el puerto 8001 para Uvicorn con --reload habilitado.
+# TrackFlow — Dockerfile del Backend (FastAPI + Uvicorn)
+# Construye la API de Suppliers con hot-reload en desarrollo
 # =============================================================================
 
 FROM python:3.12-slim
@@ -13,13 +12,16 @@ WORKDIR /app
 
 # ── Copiar requirements primero (caching de capas) ──
 COPY services/api/requirements.txt services/api/requirements.txt
-COPY packages/shared/ packages/shared/
 
 # ── Instalar dependencias del proyecto ──
 RUN uv pip install --system -r services/api/requirements.txt
 
-# ── Copiar el resto del código del backend ──
+# ── Copiar código del backend ──
 COPY services/ services/
+COPY packages/ packages/
+
+# ── PYTHONPATH para imports desde la raíz del monorepo ──
+ENV PYTHONPATH=/app
 
 # ── Directorio de trabajo donde está main.py ──
 WORKDIR /app/services/api

@@ -14,13 +14,22 @@ Endpoints (alineados con uis/backoffice/src/lib/api.ts):
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Optional
 
 from fastapi import APIRouter, HTTPException, Query
-from pydantic import BaseModel, Field
 
 # ─── TinyDB ───
 from tinydb import TinyDB, Query as TQuery
+
+from models import (
+    LeadCreate,
+    LeadUpdate,
+    LeadPatch,
+    LeadOut,
+    LeadListResponse,
+    NotePost,
+    NoteOut,
+    NoteListResponse,
+)
 
 DB_PATH = "leads_db.json"
 db = TinyDB(DB_PATH)
@@ -29,78 +38,6 @@ notes_table = db.table("notes")
 LeadQuery = TQuery()
 
 router = APIRouter(prefix="/records", tags=["Leads"])
-
-
-# ═══════════════════════════════════════════════════════════
-# Modelos Pydantic
-# ═══════════════════════════════════════════════════════════
-
-
-class NoteOut(BaseModel):
-    id: int
-    lead_id: int
-    content: str
-    created_by: Optional[str] = None
-    created_at: str
-    updated_at: Optional[str] = None
-
-
-class NotePost(BaseModel):
-    content: str = Field(..., min_length=1)
-
-
-class LeadOut(BaseModel):
-    id: int
-    company_name: str
-    contact_person: str
-    email: str
-    phone: str
-    website: Optional[str] = None
-    country: str
-    product_type: str
-    monthly_volume: str
-    services: list[str]
-    has_3pl: str
-    comments: Optional[str] = None
-    status: str
-    stage: str
-    created_at: str
-    updated_at: Optional[str] = None
-
-
-class LeadCreate(BaseModel):
-    company_name: str = Field(..., min_length=1)
-    contact_person: str = Field(..., min_length=1)
-    email: str = Field(..., min_length=1)
-    phone: str = Field(..., min_length=1)
-    website: Optional[str] = None
-    country: str = ""
-    product_type: str = ""
-    monthly_volume: str = ""
-    services: list[str] = []
-    has_3pl: str = ""
-    comments: Optional[str] = None
-    status: str = "new"
-    stage: str = "inbound"
-
-
-class LeadUpdate(BaseModel):
-    company_name: Optional[str] = None
-    contact_person: Optional[str] = None
-    email: Optional[str] = None
-    phone: Optional[str] = None
-    website: Optional[str] = None
-    country: Optional[str] = None
-    product_type: Optional[str] = None
-    monthly_volume: Optional[str] = None
-    services: Optional[list[str]] = None
-    has_3pl: Optional[str] = None
-    comments: Optional[str] = None
-
-
-class LeadPatch(BaseModel):
-    status: Optional[str] = None
-    stage: Optional[str] = None
 
 
 # ═══════════════════════════════════════════════════════════
@@ -141,12 +78,12 @@ def _get_lead_or_404(lead_id: int):
 # ═══════════════════════════════════════════════════════════
 
 
-@router.get("", response_model=dict)
+@router.get("", response_model=LeadListResponse)
 async def list_leads(limit: int = Query(500, ge=1, le=1000)):
     """Lista todos los leads. Devuelve formato compatible con unwrapArray()."""
     all_docs = leads_table.all()
     results = [_lead_to_response(doc) for doc in all_docs[-limit:]]
-    return {"results": results}
+    return LeadListResponse(results=results)
 
 
 @router.get("/{lead_id}", response_model=LeadOut)
@@ -199,7 +136,7 @@ async def patch_lead(lead_id: int, payload: LeadPatch):
 # ═══════════════════════════════════════════════════════════
 
 
-@router.get("/{lead_id}/notes", response_model=dict)
+@router.get("/{lead_id}/notes", response_model=NoteListResponse)
 async def list_notes(lead_id: int):
     """Lista las notas de un lead."""
     _get_lead_or_404(lead_id)  # verifica que el lead existe
@@ -214,7 +151,7 @@ async def list_notes(lead_id: int):
             created_at=doc["created_at"],
             updated_at=doc.get("updated_at"),
         ))
-    return {"results": results}
+    return NoteListResponse(results=results)
 
 
 @router.post("/{lead_id}/notes", response_model=NoteOut, status_code=201)

@@ -19,6 +19,7 @@ from fastapi.responses import JSONResponse
 
 from config import settings
 from routes import auth, incidents, incidents_crud, suppliers, leads
+from schemas.common import HealthResponse
 
 logger = logging.getLogger(__name__)
 
@@ -75,11 +76,11 @@ app.include_router(leads.router, prefix=settings.api_prefix)
 
 # ─── Health ───
 
-@app.get(f"{settings.api_prefix}/health")
+@app.get(f"{settings.api_prefix}/health", response_model=HealthResponse)
 async def health_check():
     """Endpoint de salud del servicio."""
-    return {
-        "status": "ok",
-        "app": settings.app_name,
-        "version": settings.app_version,
-    }
+    return HealthResponse(
+        status="ok",
+        app=settings.app_name,
+        version=settings.app_version,
+    )

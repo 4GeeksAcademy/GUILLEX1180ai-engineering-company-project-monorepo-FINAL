@@ -29,10 +29,10 @@ export default function SupplierDetailPage() {
   const [statusSubmitting, setStatusSubmitting] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
-  if (state === "loading") return <LoadingSpinner message="Cargando proveedor…" />;
+  if (state === "loading") return <LoadingSpinner message="Cargando proveedor…" fullPage />;
 
   if (state === "error" || !supplier) {
-    return <div className="space-y-4"><ErrorMessage title="Proveedor no encontrado" message={error ?? "El proveedor solicitado no existe."} showBack /></div>;
+    return <div className="space-y-4"><ErrorMessage title="Proveedor no encontrado" message={error ?? "El proveedor solicitado no existe."} showBack backHref="/suppliers" onRetry={() => refetch()} fullPage /></div>;
   }
 
   const handleRateSubmit = async (e: FormEvent) => {

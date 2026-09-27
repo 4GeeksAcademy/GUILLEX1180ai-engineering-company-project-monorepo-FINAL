@@ -17,8 +17,15 @@ export function AuthNav() {
     setToken(getToken());
   }, []);
 
-  // No renderizar nada hasta el mount (evita flash de contenido)
-  if (!mounted) return null;
+  // Placeholder invisible de misma dimensiones para evitar CLS
+  if (!mounted) {
+    return (
+      <div className="flex items-center gap-3 text-sm font-medium" aria-hidden="true" style={{ visibility: "hidden" }}>
+        <span>Mi cuenta</span>
+        <span className="rounded-lg border border-red-300 px-4 py-2">Cerrar sesión</span>
+      </div>
+    );
+  }
 
   if (token) {
     return (

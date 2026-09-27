@@ -11,13 +11,22 @@ from __future__ import annotations
 
 import secrets
 from datetime import datetime, timezone
-from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Header
-from pydantic import BaseModel, Field
 
-# ─── TinyDB ───
+# ─── Tinydb ───
 from tinydb import TinyDB, Query
+
+from models import (
+    RegisterPayload,
+    LoginPayload,
+    ProfileUpdatePayload,
+    RegisterResponse,
+    UserInfo,
+    TokenResponse,
+    AuthResponse,
+    UserProfileResponse,
+)
 
 DB_PATH = "auth_db.json"
 db = TinyDB(DB_PATH)
@@ -27,46 +36,6 @@ UserQuery = Query()
 TokenQuery = Query()
 
 router = APIRouter(tags=["Auth"])
-
-
-# ═══════════════════════════════════════════════════════════
-# Modelos Pydantic
-# ═══════════════════════════════════════════════════════════
-
-
-class RegisterPayload(BaseModel):
-    email: str = Field(..., min_length=3, max_length=120)
-    password: str = Field(..., min_length=3)
-    name: Optional[str] = None
-    phone: Optional[str] = None
-    address: Optional[str] = None
-
-
-class LoginPayload(BaseModel):
-    email: str = Field(..., min_length=3)
-    password: str = Field(..., min_length=1)
-
-
-class AuthResponse(BaseModel):
-    access_token: str
-    token_type: str = "bearer"
-    user: Optional[dict] = None
-
-
-class UserProfileResponse(BaseModel):
-    id: int
-    email: str
-    name: Optional[str] = None
-    phone: Optional[str] = None
-    address: Optional[str] = None
-    created_at: str
-    updated_at: Optional[str] = None
-
-
-class ProfileUpdatePayload(BaseModel):
-    name: Optional[str] = None
-    phone: Optional[str] = None
-    address: Optional[str] = None
 
 
 # ═══════════════════════════════════════════════════════════
@@ -132,11 +101,12 @@ async def _resolve_user(authorization: str = Header(None)) -> dict:
 # ═══════════════════════════════════════════════════════════
 
 
-@router.post("/auth/register", status_code=201)
+@router.post("/auth/register", status_code=201, response_model=RegisterResponse)
 async def register(payload: RegisterPayload):
     """Registra un nuevo usuario.
 
-    Verifica que el email no exista, crea el usuario y devuelve datos básicos.
+    Verifica que el email no exista, crea el usuario y devuelve confirmación.
+    Nunca devuelve credenciales ni el email en la respuesta.
     """
     # Normalizar email
     email = payload.email.lower().strip()
@@ -158,10 +128,10 @@ async def register(payload: RegisterPayload):
     }
     doc_id = users_table.insert(doc_data)
 
-    return {
-        "id": doc_id,
-        "email": email,
-    }
+    return RegisterResponse(
+        id=doc_id,
+        message="Usuario creado con éxito",
+    )
 
 
 # ═══════════════════════════════════════════════════════════
@@ -189,11 +159,11 @@ async def login(payload: LoginPayload):
     return AuthResponse(
         access_token=token,
         token_type="bearer",
-        user={
-            "id": user.doc_id,
-            "email": user["email"],
-            "name": user.get("name"),
-        },
+        user=UserInfo(
+            id=user.doc_id,
+            email=user["email"],
+            name=user.get("name"),
+        ),
     )
 
 

@@ -5,11 +5,11 @@
 
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, Suspense } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useIncidentsList } from "@/hooks/useIncidentsList";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
-import { IncidentFilters } from "@/components/IncidentFilters";
 import {
   IncidentStatusBadge,
   IncidentOriginBadge,
@@ -19,6 +19,12 @@ import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { humanize } from "@/lib/types";
 import type { IncidentStatus } from "@/lib/types";
+
+// Lazy load de componentes pesados para mejorar LCP
+const IncidentFilters = dynamic(
+  () => import("@/components/IncidentFilters").then((m) => m.IncidentFilters),
+  { ssr: false, loading: () => <div className="h-16 animate-pulse rounded-lg bg-gray-100" /> }
+);
 
 export default function IncidentsListPage() {
   const { isChecking, isAuthenticated } = useAuthGuard();
@@ -112,6 +118,7 @@ export default function IncidentsListPage() {
         <ErrorMessage
           title="Error al cargar incidencias"
           message={error}
+          onRetry={() => refetch()}
         />
       )}
 

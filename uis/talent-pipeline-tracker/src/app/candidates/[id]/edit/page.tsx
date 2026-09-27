@@ -11,11 +11,11 @@ export default function EditCandidatePage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
-  const { candidate, state, error } = useCandidate(id);
+  const { candidate, state, error, refetch } = useCandidate(id);
 
-  if (state === "loading") return <LoadingSpinner message="Cargando candidato…" />;
+  if (state === "loading") return <LoadingSpinner message="Cargando candidato…" fullPage />;
   if (state === "error" || !candidate) {
-    return <ErrorMessage message={error ?? "Candidato no encontrado"} showBack />;
+    return <ErrorMessage message={error ?? "Candidato no encontrado"} showBack onRetry={refetch} fullPage />;
   }
 
   return (

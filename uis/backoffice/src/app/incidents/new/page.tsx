@@ -111,7 +111,7 @@ export default function NewIncidentPage() {
     [form, router]
   );
 
-  if (isChecking) return <LoadingSpinner message="Verificando sesión…" />;
+  if (isChecking) return <LoadingSpinner message="Verificando sesión…" fullPage />;
   if (!isAuthenticated) return null;
 
   const fieldError = (name: string) =>

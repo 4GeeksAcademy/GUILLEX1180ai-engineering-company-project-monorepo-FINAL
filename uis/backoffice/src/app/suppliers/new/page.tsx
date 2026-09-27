@@ -26,7 +26,7 @@ export default function NewSupplierPage() {
   const { isChecking, isAuthenticated } = useAuthGuard();
   const [submitting, setSubmitting] = useState(false);
 
-  if (isChecking) return <LoadingSpinner message="Verificando sesión…" />;
+  if (isChecking) return <LoadingSpinner message="Verificando sesión…" fullPage />;
   if (!isAuthenticated) return null;
   const [error, setError] = useState<string | null>(null);
 

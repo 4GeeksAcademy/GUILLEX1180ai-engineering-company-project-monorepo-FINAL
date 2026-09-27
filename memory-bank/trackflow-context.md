@@ -1,8 +1,8 @@
 # Memory Bank — TrackFlow
 
 > **Propósito:** Banco de memoria persistente para agentes de IA. Debe ser leído antes de cada sesión de trabajo.
-> **Última actualización:** 2026-09-17
-> **Versión:** 1.0
+> **Última actualización:** 2026-09-27
+> **Versión:** 2.0
 
 ---
 
@@ -28,8 +28,11 @@ El memory bank está dividido en 3 archivos especializados:
 4. [Hito 1 — Sitio Web Público](#4-hito-1--sitio-web-público)
 5. [Hito 2 — Tracker Core (TypeScript)](#5-hito-2--tracker-core-typescript)
 6. [Hito 3 — Talent Pipeline Tracker (Next.js)](#6-hito-3--talent-pipeline-tracker-nextjs)
-7. [Restricciones Vigentes](#7-restricciones-vigentes)
-8. [Glosario de Términos](#8-glosario-de-términos)
+7. [Application — Sitio Corporativo (Next.js)](#7-application--sitio-corporativo-nextjs)
+8. [Backend FastAPI](#8-backend-fastapi)
+9. [Hito 10 — Auditoría de Rendimiento](#9-hito-10--auditoría-de-rendimiento)
+10. [Restricciones Vigentes](#10-restricciones-vigentes)
+11. [Glosario de Términos](#11-glosario-de-términos)
 
 ---
 
@@ -66,19 +69,25 @@ El memory bank está dividido en 3 archivos especializados:
 /
 ├── CONTEXT.md                    # Fuente única de verdad sobre la empresa
 ├── AGENTS.md                     # Protocolo operativo para agentes de IA
+├── docker-compose.yml            # Orquestación Docker local
 ├── memory-bank/                  # Banco de memoria (este archivo)
 ├── .agents/
 │   ├── rules/                    # Reglas de desarrollo
 │   └── skills/                   # Skills reutilizables para agentes
 ├── uis/
 │   ├── website/                  # Hito 1 — Landing page pública (HTML+CSS+JS)
-│   ├── backoffice/               # Backoffice (Next.js App Router + TypeScript)
-│   └── talent-pipeline-tracker/  # Hito 3 — App de reclutamiento (Next.js)
+│   ├── backoffice/               # Backoffice (Next.js, puerto 3001)
+│   ├── application/              # Sitio corporativo (Next.js, puerto 3002)
+│   └── talent-pipeline-tracker/  # Hito 3 — App de reclutamiento (Next.js, puerto 3000)
 ├── packages/
-│   └── tracker-core/             # Hito 2 — Lógica TypeScript pura
-├── services/                     # Backend FastAPI (futuro)
-├── agents/                       # Agentes de IA (futuro)
-├── skills/                       # Skills del proyecto (formato Skill template)
+│   ├── tracker-core/             # Hito 2 — Lógica TypeScript pura
+│   └── shared/                   # Componentes, hooks, tipos compartidos
+├── services/
+│   └── api/                      # Backend FastAPI (puerto 8001)
+│       ├── schemas/              # Schemas Pydantic modulares
+│       └── routes/               # Routers por dominio
+├── agents/                       # Agentes de IA
+├── skills/                       # Skills del proyecto
 ├── data/                         # Datos y pipelines
 ├── docs/                         # Documentación
 ├── infra/                        # Docker, despliegue
@@ -97,9 +106,13 @@ El memory bank está dividido en 3 archivos especializados:
 | **ADR-003** | Fetch nativo para llamadas API (sin axios) | API nativa del navegador, suficiente para los endpoints actuales |
 | **ADR-004** | Tailwind CSS como único framework de estilos | Consistencia visual, CDN para Hito 1, PostCSS para Next.js |
 | **ADR-005** | TypeScript strict mode, sin `any` | Seguridad de tipos, auto-documentación, prevención de errores |
-| **ADR-006** | FastAPI centralizado (futuro en `/services/`) | Evita microservicios prematuros; routers por dominio |
+| **ADR-006** | FastAPI centralizado en `services/api/` | Evita microservicios prematuros; routers por dominio |
 | **ADR-007** | Barrel file en packages (src/index.ts) | Imports limpios, encapsulación de la API pública |
 | **ADR-008** | 100% funciones puras en tracker-core | Testabilidad, predecibilidad, sin efectos secundarios |
+| **ADR-009** | Schemas modulares en `services/api/schemas/` | Separación estricta input/output, mantenibilidad |
+| **ADR-010** | TinyDB para desarrollo | Simplicidad, zero-config; migración a SQLAlchemy planeada |
+| **ADR-011** | `response_model` explícito en todos los endpoints | Cero datos sensibles, tipado en OpenAPI |
+| **ADR-012** | Componentes compartidos en `packages/shared/` | Eliminación código duplicado (~286 líneas) |
 
 ---
 
@@ -212,7 +225,85 @@ packages/tracker-core/src/
 
 ---
 
-## 7. Restricciones Vigentes
+## 7. Application — Sitio Corporativo (Next.js)
+
+| Aspecto | Detalle |
+|---------|---------|
+| **Ubicación** | `uis/application/` |
+| **Stack** | Next.js 15.1, React 19, TypeScript 5.7+, Tailwind CSS |
+| **Puerto** | 3002 |
+| **Componentes compartidos** | LoadingSpinner, ErrorMessage, SupplierBadge (desde `packages/shared/`) |
+
+### Funcionalidad
+- Página de **Suppliers** con listado, filtros, detalle y gestión de estados
+- Página de **Incidents** con listado, filtros, detalle, creación y análisis
+- Lazy loading de IncidentFilters (LCP optimizado de 11.7s a 1.9s)
+
+---
+
+## 8. Backend FastAPI
+
+| Aspecto | Detalle |
+|---------|---------|
+| **Ubicación** | `services/api/` |
+| **Stack** | FastAPI 0.115.0, Python 3.11+, Pydantic v2, TinyDB |
+| **Puerto** | 8001 |
+| **Docs** | `http://localhost:8001/api/v1/docs` |
+
+### Schemas Modulares (`services/api/schemas/`)
+
+| Archivo | Contenido |
+|---------|-----------|
+| `auth.py` | RegisterPayload, LoginPayload, AuthResponse, UserProfileResponse |
+| `suppliers.py` | SupplierCreate, SupplierResponse, SupplierListItem |
+| `incidents.py` | IncidentCreate, IncidentResponse, AnalisisResponse |
+| `leads.py` | LeadCreate, LeadOut, LeadListResponse, NotePost, NoteOut |
+| `common.py` | HealthResponse, ErrorDetail |
+| `enums.py` | SupplierStatus, IncidentCategory, IncidentStatus, etc. |
+
+### Endpoints
+
+| Dominio | Endpoints | Método |
+|---------|-----------|--------|
+| **Auth** | register, login, me, update profile | POST, GET, PUT |
+| **Suppliers** | CRUD completo + filtrado | GET, POST, PATCH |
+| **Incidents** | CRUD + análisis IA | GET, POST, PATCH |
+| **Leads** | CRUD + notas | GET, POST, PUT, PATCH, DELETE |
+
+### Datos
+- TinyDB con archivos JSON: `auth_db.json`, `suppliers_db.json`, `incidents_db.json`, `leads_db.json`
+- Seed data en `seed.py`
+
+---
+
+## 9. Hito 10 — Auditoría de Rendimiento Web
+
+| Aspecto | Detalle |
+|---------|---------|
+| **Fecha** | 2026-09-27 |
+| **Herramienta** | Lighthouse 13.5.0 (Chromium headless) |
+| **Metodología** | Medir → Analizar → Corregir → Re-medir |
+
+### Correcciones Aplicadas
+
+| ID | Corrección | Impacto |
+|----|------------|---------|
+| **C2** | `next/font/google` para fuentes | Eliminación render-blocking |
+| **C4** | Placeholders en AuthNav/LoadingSpinner | CLS estabilizado |
+| **C5** | Lazy loading IncidentFilters (`next/dynamic`) | LCP -83.8% (11.7s → 1.9s) |
+| **C6** | Refactorización código compartido a `packages/shared/` | -286 líneas duplicadas |
+
+### Métricas Finales
+
+| Métrica | Before | After | Mejora |
+|---|---|---|---|
+| Performance (promedio) | 65.6 | 70.3 | **+4.7 pts** |
+| LCP peor caso | 11.7s | 1.9s | **-83.8%** |
+| Código duplicado | ~286 líneas | 0 | **-100%** |
+
+---
+
+## 10. Restricciones Vigentes
 
 1. **Sin `any` en TypeScript** — Usar tipos explícitos o genéricos
 2. **Sin librerías externas de estado** — Solo `useState` y `useReducer`
@@ -221,10 +312,13 @@ packages/tracker-core/src/
 5. **100% funciones puras** en `packages/tracker-core/`
 6. **Commits** deben seguir el protocolo de `AGENTS.md`
 7. **Todo código nuevo** debe reflejar el contexto de TrackFlow (no genérico)
+8. **`response_model` explícito** en todos los endpoints FastAPI
+9. **Separación estricta input/output** en schemas Pydantic
+10. **Componentes compartidos** en `packages/shared/` — no duplicar código
 
 ---
 
-## 8. Glosario de Términos
+## 11. Glosario de Términos
 
 | Término | Definición |
 |---------|------------|
@@ -236,3 +330,6 @@ packages/tracker-core/src/
 | **Tracker Core** | Paquete TypeScript de lógica de filtrado, búsqueda y validación |
 | **Talent Pipeline** | App Next.js para gestión de candidatos en proceso de selección |
 | **Carrier** | Empresa de transporte/logística (UPS, FedEx, DHL, MRW, SEUR) |
+| **Application** | Sitio corporativo Next.js (puerto 3002) con Suppliers e Incidents |
+| **Backoffice** | App de administración Next.js (puerto 3001) con Leads y gestión |
+| **Serialización** | Proceso de tipado de entradas/salidas de la API con Pydantic schemas |
