@@ -13,6 +13,8 @@ _ROOT = Path(__file__).resolve().parent.parent.parent
 if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
 
+import time
+
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -20,6 +22,7 @@ from fastapi.responses import JSONResponse
 from config import settings
 from routes import auth, incidents, incidents_crud, suppliers, leads
 from schemas.common import HealthResponse
+from cache import api_cache
 
 logger = logging.getLogger(__name__)
 
@@ -63,6 +66,31 @@ async def global_exception_handler(request: Request, exc: Exception):
             "detail": "Error interno del servidor. Por favor, intenta de nuevo más tarde.",
         },
     )
+
+
+# ═══════════════════════════════════════════════════════════
+# Middleware de Timing HTTP
+# ═══════════════════════════════════════════════════════════
+
+
+@app.middleware("http")
+async def timing_middleware(request: Request, call_next):
+    """Mide e imprime en consola la latencia en ms de cada petición."""
+    start = time.perf_counter()
+    response = await call_next(request)
+    elapsed_ms = (time.perf_counter() - start) * 1000
+    # Usamos logging.getLogger("uvicorn") para que aparezca con el formato
+    # nativo de uvicorn y sea visible en consola.
+    _log = logging.getLogger("uvicorn.access")
+    _log.info(
+        "⏱  %s %s → %d (%.1f ms, cache=%d)",
+        request.method,
+        request.url.path,
+        response.status_code,
+        elapsed_ms,
+        api_cache.size,
+    )
+    return response
 
 
 # ─── Routers ───
