@@ -67,25 +67,17 @@ function LeadListContent() {
   // ─── Estados ───
 
   if (state === "loading") {
-    return <LoadingSpinner message="Cargando leads…" />;
+    return <LoadingSpinner message="Cargando leads…" fullPage />;
   }
 
   if (state === "error") {
     return (
-      <div className="space-y-4">
-        <ErrorMessage
-          title="Error al cargar leads"
-          message={error ?? "Ocurrió un error inesperado"}
-        />
-        <div className="text-center">
-          <button
-            onClick={refetch}
-            className="rounded-lg bg-tf-blue px-4 py-2 text-sm text-white hover:bg-tf-blue-dark transition-colors"
-          >
-            Reintentar
-          </button>
-        </div>
-      </div>
+      <ErrorMessage
+        title="Error al cargar leads"
+        message={error ?? "Ocurrió un error inesperado. Verifica la conexión con el servidor."}
+        onRetry={refetch}
+        fullPage
+      />
     );
   }
 

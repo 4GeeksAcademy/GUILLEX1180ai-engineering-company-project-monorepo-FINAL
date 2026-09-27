@@ -18,10 +18,10 @@ export default function CandidateDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
-  const { candidate, state, error, setCandidate } = useCandidate(id);
+  const { candidate, state, error, refetch, setCandidate } = useCandidate(id);
 
   // ─── Loading ─────────────────────────────────────────────────────────
-  if (state === "loading") return <LoadingSpinner message="Cargando candidato…" />;
+  if (state === "loading") return <LoadingSpinner message="Cargando candidato…" fullPage />;
 
   // ─── Error / no encontrado ──────────────────────────────────────────
   if (state === "error" || !candidate) {
@@ -29,6 +29,8 @@ export default function CandidateDetailPage({
       <ErrorMessage
         message={error ?? "Candidato no encontrado"}
         showBack
+        onRetry={refetch}
+        fullPage
       />
     );
   }

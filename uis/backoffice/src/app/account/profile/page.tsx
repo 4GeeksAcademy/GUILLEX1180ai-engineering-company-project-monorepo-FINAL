@@ -107,7 +107,7 @@ export default function AccountProfilePage() {
 
   // Estado de verificación inicial
   if (isChecking) {
-    return <LoadingSpinner message="Verificando sesión…" />;
+    return <LoadingSpinner message="Verificando sesión…" fullPage />;
   }
 
   if (!isAuthenticated) {
@@ -116,15 +116,15 @@ export default function AccountProfilePage() {
 
   // Error al cargar perfil
   if (loading) {
-    return <LoadingSpinner message="Cargando perfil…" />;
+    return <LoadingSpinner message="Cargando perfil…" fullPage />;
   }
 
   if (fetchError) {
-    return <ErrorMessage title="Error de perfil" message={fetchError} showBack />;
+    return <ErrorMessage title="Error de perfil" message={fetchError} showBack onRetry={loadProfile} fullPage />;
   }
 
   if (!profile) {
-    return <ErrorMessage title="Error" message="No se pudo cargar el perfil." showBack />;
+    return <ErrorMessage title="Error" message="No se pudo cargar el perfil." showBack onRetry={loadProfile} fullPage />;
   }
 
   const hasChanges =

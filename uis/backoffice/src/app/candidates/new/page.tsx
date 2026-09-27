@@ -35,7 +35,7 @@ export default function NewLeadPage() {
   const { isChecking, isAuthenticated } = useAuthGuard();
   const [form, setForm] = useState<LeadFormData>(INITIAL_FORM);
 
-  if (isChecking) return <LoadingSpinner message="Verificando sesión…" />;
+  if (isChecking) return <LoadingSpinner message="Verificando sesión…" fullPage />;
   if (!isAuthenticated) return null;
   const [status, setStatus] = useState<LeadStatus>("new");
   const [stage, setStage] = useState<LeadStage>("inbound");

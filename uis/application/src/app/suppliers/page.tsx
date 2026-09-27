@@ -45,16 +45,13 @@ function SupplierListContent() {
   }, [router, pathname]);
 
   if (state === "loading") {
-    return <LoadingSpinner message="Cargando proveedores…" />;
+    return <LoadingSpinner message="Cargando proveedores…" fullPage />;
   }
 
   if (state === "error") {
     return (
       <div className="space-y-4">
-        <ErrorMessage title="Error al cargar proveedores" message={error ?? "Ocurrió un error inesperado"} />
-        <div className="text-center">
-          <button onClick={() => fetchSuppliers()} className="rounded-lg bg-tf-blue px-4 py-2 text-sm text-white hover:bg-tf-blue-dark transition-colors">Reintentar</button>
-        </div>
+        <ErrorMessage title="Error al cargar proveedores" message={error ?? "Ocurrió un error inesperado. Verifica que el servidor backend esté funcionando en localhost:8001."} onRetry={() => fetchSuppliers()} fullPage />
       </div>
     );
   }

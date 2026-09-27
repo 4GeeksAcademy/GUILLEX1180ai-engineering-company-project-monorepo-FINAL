@@ -4,6 +4,7 @@ Variables de entorno y settings centralizados usando Pydantic Settings.
 """
 
 from pydantic_settings import BaseSettings
+from pydantic import field_validator
 
 
 class Settings(BaseSettings):
@@ -16,12 +17,25 @@ class Settings(BaseSettings):
     # Frontend
     frontend_url: str = "http://localhost:3001"
 
-    # CORS
+    # CORS — se sobreescribe con variable de entorno CORS_ORIGINS
     cors_origins: list[str] = [
         "http://localhost:3000",
         "http://localhost:3001",
+        "http://localhost:3002",
         "http://localhost:8080",
     ]
+
+    @field_validator("cors_origins", mode="before")
+    @classmethod
+    def parse_cors_origins(cls, v):
+        """Permite pasar CORS_ORIGINS como string separado por comas."""
+        if isinstance(v, str):
+            return [origin.strip() for origin in v.split(",") if origin.strip()]
+        return v
+
+    class Config:
+        env_file = ".env"
+        extra = "allow"
 
     # Resend
     resend_api_key: str = ""

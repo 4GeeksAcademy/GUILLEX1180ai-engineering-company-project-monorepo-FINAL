@@ -27,9 +27,9 @@ export default function EditLeadPage({
   const leadId = Number(id);
   const router = useRouter();
   const { isChecking, isAuthenticated } = useAuthGuard();
-  const { lead, state, error } = useLead(leadId);
+  const { lead, state, error, refetch } = useLead(leadId);
 
-  if (isChecking) return <LoadingSpinner message="Verificando sesión…" />;
+  if (isChecking) return <LoadingSpinner message="Verificando sesión…" fullPage />;
   if (!isAuthenticated) return null;
 
   const [sending, setSending] = useState(false);
@@ -89,8 +89,8 @@ export default function EditLeadPage({
     }
   };
 
-  if (state === "loading") return <LoadingSpinner message="Cargando lead…" />;
-  if (state === "error") return <ErrorMessage title="Error" message={error ?? ""} showBack />;
+  if (state === "loading") return <LoadingSpinner message="Cargando lead…" fullPage />;
+  if (state === "error") return <ErrorMessage title="Error" message={error ?? "No se pudo cargar el lead. Verifica la conexión con el servidor."} showBack onRetry={refetch} fullPage />;
   if (!lead) return <ErrorMessage title="Lead no encontrado" message="No existe." showBack />;
   if (!form) return <LoadingSpinner message="Preparando formulario…" />;
 

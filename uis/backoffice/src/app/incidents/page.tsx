@@ -118,6 +118,7 @@ export default function IncidentsListPage() {
         <ErrorMessage
           title="Error al cargar incidencias"
           message={error}
+          onRetry={() => refetch()}
         />
       )}
 

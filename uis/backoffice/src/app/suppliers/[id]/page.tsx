@@ -42,7 +42,7 @@ export default function SupplierDetailPage() {
   const [deleting, setDeleting] = useState(false);
 
   if (state === "loading") {
-    return <LoadingSpinner message="Cargando proveedor…" />;
+    return <LoadingSpinner message="Cargando proveedor…" fullPage />;
   }
 
   if (state === "error" || !supplier) {
@@ -53,6 +53,7 @@ export default function SupplierDetailPage() {
           message={error ?? "El proveedor solicitado no existe o ha sido eliminado."}
           showBack
           backHref="/suppliers"
+          onRetry={() => refetch()}
         />
       </div>
     );

@@ -120,20 +120,14 @@ export default function IncidentsSummaryPage() {
       </div>
 
       {/* ─── Carga / Error ─── */}
-      {state === "loading" && <LoadingSpinner message="Cargando métricas…" />}
+      {state === "loading" && <LoadingSpinner message="Cargando métricas…" fullPage />}
       {state === "error" && (
-        <div className="space-y-3">
-          <ErrorMessage
-            title="Error al cargar resumen"
-            message={error ?? "Error desconocido."}
-          />
-          <button
-            onClick={refetch}
-            className="rounded-lg bg-tf-blue px-4 py-2 text-sm text-white transition-colors hover:bg-blue-800"
-          >
-            Reintentar
-          </button>
-        </div>
+        <ErrorMessage
+          title="Error al cargar resumen"
+          message={error ?? "Ocurrió un error inesperado al cargar las métricas."}
+          onRetry={refetch}
+          fullPage
+        />
       )}
 
       {/* ─── Dashboard ─── */}

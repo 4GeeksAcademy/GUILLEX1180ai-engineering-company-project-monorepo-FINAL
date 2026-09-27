@@ -1,53 +1,84 @@
 # =============================================================================
 # TrackFlow — Docker Compose (orquestación local)
 #
-# Requisitos:
-#   - Docker Engine 24+ y Docker Compose 2.20+
-#   - Archivo .env en la raíz (ver .env.example)
-#
-# Arranque:
+# Arranque (desarrollo con hot-reload):
 #   docker compose up --build
 #
+# Arranque (producción):
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build
+#
 # URLs locales:
-#   - Website    → http://localhost:3000
-#   - Backoffice → http://localhost:3001
-#   - API        → http://localhost:8001
-#   - API Docs   → http://localhost:8001/api/v1/docs
+#   - Website     → http://localhost:3000
+#   - Backoffice  → http://localhost:3001
+#   - Application → http://localhost:3002
+#   - API         → http://localhost:8001
+#   - API Docs    → http://localhost:8001/api/v1/docs
 # =============================================================================
 
 services:
 
   # ────────────────────────────────────────────────────────────────
-  # Frontend / Interfaces
-  # Construye desde /uis/ y arranca website (3000) y backoffice (3001)
-  # simultáneamente en modo desarrollo con hot-reload.
+  # Website — Sitio corporativo estático
   # ────────────────────────────────────────────────────────────────
-  frontend:
-    build:
-      context: ./uis
-      dockerfile: Dockerfile
-    container_name: trackflow-frontend
+  website:
+    image: node:22-alpine
+    container_name: trackflow-website
     ports:
-      - "3000:3000"   # website
-      - "3001:3001"   # backoffice
+      - "3000:3000"
+    working_dir: /app/website
     volumes:
-      # Bind mount del código fuente para hot-reload
-      - ./uis:/app
-      # Volúmenes anónimos para preservar node_modules del contenedor
-      - /app/website/node_modules
-      - /app/backoffice/node_modules
-    environment:
-      - NODE_ENV=development
-      - BACKEND_HOST=backend
-    env_file:
-      - .env
+      - ./uis/website:/app/website
+    command: npx serve -l 3000 .
     networks:
       - trackflow-network
     restart: unless-stopped
 
   # ────────────────────────────────────────────────────────────────
-  # Backend (API TrackFlow)
-  # Construye desde /services/api con Uvicorn + --reload.
+  # Backoffice — Panel interno (Next.js 15)
+  # ────────────────────────────────────────────────────────────────
+  backoffice:
+    build:
+      context: .
+      dockerfile: uis/backoffice/Dockerfile
+    container_name: trackflow-backoffice
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=http://backend:8001/api/v1
+      - BACKEND_HOST=backend
+    env_file:
+      - .env
+    depends_on:
+      - backend
+    networks:
+      - trackflow-network
+    restart: unless-stopped
+
+  # ────────────────────────────────────────────────────────────────
+  # Application — App de proveedores (Next.js 15)
+  # ────────────────────────────────────────────────────────────────
+  application:
+    build:
+      context: .
+      dockerfile: uis/application/Dockerfile
+    container_name: trackflow-application
+    ports:
+      - "3002:3002"
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=http://backend:8001/api/v1
+      - BACKEND_HOST=backend
+    env_file:
+      - .env
+    depends_on:
+      - backend
+    networks:
+      - trackflow-network
+    restart: unless-stopped
+
+  # ────────────────────────────────────────────────────────────────
+  # Backend — API FastAPI (Uvicorn + hot-reload)
   # ────────────────────────────────────────────────────────────────
   backend:
     build:
@@ -56,11 +87,10 @@ services:
     container_name: trackflow-backend
     ports:
       - "8001:8001"
-    volumes:
-      # Bind mount del monorepo completo para hot-reload de la API
-      - .:/app
     environment:
       - PYTHONPATH=/app
+      - FRONTEND_URL=http://localhost:3001
+      - CORS_ORIGINS=http://localhost:3000,http://localhost:3001,http://localhost:3002,http://localhost:8080
     env_file:
       - .env
     networks:
