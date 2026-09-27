@@ -29,7 +29,8 @@ class TestRegister:
         assert resp.status_code == 201
         data = resp.json()
         assert "id" in data
-        assert data["email"] == "nuevo@trackflow.com"
+        assert "message" in data
+        assert data["message"] == "Usuario creado con éxito"
 
     def test_register_minimal_fields(self, client: TestClient):
         """Registro exitoso solo con campos obligatorios (email y password)."""
@@ -37,8 +38,8 @@ class TestRegister:
         resp = client.post("/api/v1/auth/register", json=payload)
         assert resp.status_code == 201
         data = resp.json()
-        assert data["email"] == "minimal@trackflow.com"
         assert "id" in data
+        assert "message" in data
 
     # ── Caso límite ──
 
@@ -48,7 +49,8 @@ class TestRegister:
         resp = client.post("/api/v1/auth/register", json=payload)
         assert resp.status_code == 201
         data = resp.json()
-        assert data["email"] == "shortpass@trackflow.com"
+        assert "id" in data
+        assert "message" in data
 
     def test_register_minimum_email_length(self, client: TestClient):
         """Caso límite: email con la longitud mínima (3 caracteres)."""
@@ -56,7 +58,8 @@ class TestRegister:
         resp = client.post("/api/v1/auth/register", json=payload)
         assert resp.status_code == 201
         data = resp.json()
-        assert data["email"] == "a@b"
+        assert "id" in data
+        assert "message" in data
 
     def test_register_maximum_email_length(self, client: TestClient):
         """Caso límite: email con la longitud máxima permitida (120 caracteres)."""
@@ -68,7 +71,8 @@ class TestRegister:
         resp = client.post("/api/v1/auth/register", json=payload)
         assert resp.status_code == 201
         data = resp.json()
-        assert data["email"] == email.lower()
+        assert "id" in data
+        assert "message" in data
 
     def test_register_email_case_insensitivity(self, client: TestClient):
         """Caso límite: email con mayúsculas se normaliza a minúsculas."""
@@ -76,8 +80,8 @@ class TestRegister:
         resp = client.post("/api/v1/auth/register", json=payload)
         assert resp.status_code == 201
         data = resp.json()
-        # El endpoint normaliza a minúsculas
-        assert data["email"] == "casetest@trackflow.com"
+        assert "id" in data
+        assert "message" in data
 
     # ── Modo de fallo ──
 

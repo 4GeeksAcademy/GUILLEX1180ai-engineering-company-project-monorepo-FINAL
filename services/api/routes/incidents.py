@@ -18,45 +18,18 @@ from typing import Any, Optional
 
 from fastapi import APIRouter, File, HTTPException, UploadFile
 from fastapi.responses import PlainTextResponse
-from pydantic import BaseModel
 
 from incidents_core import (
     COLUMNAS_REQUERIDAS,
     validar_fila,
     calcular_metricas,
 )
+from models import AnalisisResponse, ErrorDetailAnalisis as ErrorDetail
 
 router = APIRouter(prefix="/incidents", tags=["Incidents"])
 
 # ─── Almacén en memoria del último análisis ───
 _last_analysis: dict[str, Any] | None = None
-
-
-# ═══════════════════════════════════════════════════════════
-# Modelos de respuesta
-# ═══════════════════════════════════════════════════════════
-
-
-class ErrorDetail(BaseModel):
-    tipo: str
-    cantidad: int
-
-
-class AnalisisResponse(BaseModel):
-    total_registros: int
-    registros_validos: int
-    registros_invalidos: int
-    errores_por_tipo: list[ErrorDetail]
-    categorias: dict[str, int]
-    estados: dict[str, int]
-    satisfaccion_media: Optional[float] = None
-    total_cerrados_con_puntuacion: int
-    analizado_en: str
-
-
-# ═══════════════════════════════════════════════════════════
-# Endpoints
-# ═══════════════════════════════════════════════════════════
 
 
 @router.post("/analyze", response_model=AnalisisResponse)

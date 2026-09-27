@@ -135,7 +135,7 @@ class TestList:
         """Sin leads → results vacío."""
         resp = client.get(self._URL)
         assert resp.status_code == 200
-        assert resp.json() == {"results": []}
+        assert resp.json() == {"results": [], "total": None}
 
     def test_list_all(self, client):
         """Listar todos los leads."""
