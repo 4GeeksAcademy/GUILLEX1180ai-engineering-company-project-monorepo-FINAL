@@ -52,6 +52,7 @@ export default function SupplierDetailPage() {
           title="Proveedor no encontrado"
           message={error ?? "El proveedor solicitado no existe o ha sido eliminado."}
           showBack
+          backHref="/suppliers"
         />
       </div>
     );

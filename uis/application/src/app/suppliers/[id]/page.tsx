@@ -32,7 +32,7 @@ export default function SupplierDetailPage() {
   if (state === "loading") return <LoadingSpinner message="Cargando proveedor…" />;
 
   if (state === "error" || !supplier) {
-    return <div className="space-y-4"><ErrorMessage title="Proveedor no encontrado" message={error ?? "El proveedor solicitado no existe."} showBack /></div>;
+    return <div className="space-y-4"><ErrorMessage title="Proveedor no encontrado" message={error ?? "El proveedor solicitado no existe."} showBack backHref="/suppliers" /></div>;
   }
 
   const handleRateSubmit = async (e: FormEvent) => {

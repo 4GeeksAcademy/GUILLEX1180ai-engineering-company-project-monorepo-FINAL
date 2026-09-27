@@ -104,46 +104,21 @@ export const LEAD_STAGE_OPTIONS: LeadStage[] = [
   "active",
 ];
 
-/* ─── Supplier ─── */
+/* ─── Re-exportar Supplier Types desde paquete compartido ─── */
 
-export type SupplierStatus = "activo" | "suspendido";
-
-export type ProductCategory =
-  | "Moda"
-  | "Electrónica"
-  | "Cosmética"
-  | "Alimentación";
-
-export type Country = "Estados Unidos" | "España";
-
-export interface Supplier {
-  id: number;
-  nombre: string;
-  pais: Country;
-  categorias: ProductCategory[];
-  tarifa: number;
-  status: SupplierStatus;
-  updated_at: string;
-}
-
-export interface SupplierFormData {
-  nombre: string;
-  pais: Country;
-  categorias: ProductCategory[];
-  tarifa: number;
-  status: SupplierStatus;
-}
-
-export const SUPPLIER_STATUS_OPTIONS: SupplierStatus[] = ["activo", "suspendido"];
-
-export const PRODUCT_CATEGORY_OPTIONS: ProductCategory[] = [
-  "Moda",
-  "Electrónica",
-  "Cosmética",
-  "Alimentación",
-];
-
-export const COUNTRY_OPTIONS: Country[] = ["Estados Unidos", "España"];
+export {
+  supplierStatusColor,
+  SUPPLIER_STATUS_OPTIONS,
+  PRODUCT_CATEGORY_OPTIONS,
+  COUNTRY_OPTIONS,
+} from "@shared/lib/suppliers-types";
+export type {
+  Supplier,
+  SupplierFormData,
+  SupplierStatus,
+  ProductCategory,
+  Country,
+} from "@shared/lib/suppliers-types";
 
 /* ─── Autenticación ─── */
 
@@ -258,12 +233,6 @@ export function stageColor(stage: LeadStage): string {
     active: "bg-green-100 text-green-800",
   };
   return map[stage] ?? "bg-gray-100 text-gray-800";
-}
-
-export function supplierStatusColor(status: string): string {
-  return status === "activo"
-    ? "bg-green-100 text-green-800 border border-green-300"
-    : "bg-red-100 text-red-800 border border-red-300";
 }
 
 /* ─── Incidentes ─── */
