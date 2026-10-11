@@ -46,6 +46,10 @@ jobs:
           cache: "npm"
           cache-dependency-path: uis/backoffice/package-lock.json
 
+      - name: Instalar dependencias de packages/shared (paquete compartido)
+        working-directory: packages/shared
+        run: npm ci --no-audit --no-fund
+
       - name: Instalar dependencias
         run: npm ci --no-audit --no-fund
 
