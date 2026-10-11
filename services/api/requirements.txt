@@ -10,4 +10,7 @@ resend>=2.47.0
 # Seguridad: JWT y hashing de contraseñas
 PyJWT>=2.9.0,<3
 bcrypt>=4.2.0,<5
-bcrypt>=4.2.0,<5
+# Autenticación y control de acceso
+slowapi>=0.1.9,<1
+# CORS y seguridad
+itsdangerous>=2.2.0,<3

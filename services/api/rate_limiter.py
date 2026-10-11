@@ -61,6 +61,19 @@ class SlidingWindowRateLimiter:
             timestamps.append(now)
             self._store[key] = timestamps
 
+    def remaining(self, key: str) -> int:
+        """Devuelve el número de solicitudes restantes antes del límite.
+
+        Si ya superó el límite, devuelve 0.
+        """
+        now = time.monotonic()
+        with self._lock:
+            timestamps = self._store.get(key, [])
+            timestamps = [t for t in timestamps if now - t < self._window_seconds]
+            self._store[key] = timestamps
+            used = len(timestamps)
+            return max(0, self._max_requests - used)
+
     def reset(self, key: str | None = None) -> None:
         """Limpia el historial de una clave (o todo si `key` es ``None``).
 

@@ -96,11 +96,17 @@ class ForgotPasswordResponse(BaseModel):
     """Respuesta genérica anti-enumeración.
 
     Siempre devuelve el mismo mensaje, exista o no el email.
+    Incluye el número de solicitudes restantes en la ventana de rate limiting.
     """
 
     message: str = (
         "Si la dirección está registrada, recibirás un enlace para "
         "restablecer tu contraseña."
+    )
+    remaining_requests: Optional[int] = Field(
+        default=None,
+        description="Solicitudes restantes en la ventana de rate limiting. "
+        "Solo se envía cuando el cliente no ha superado el límite.",
     )
 
 

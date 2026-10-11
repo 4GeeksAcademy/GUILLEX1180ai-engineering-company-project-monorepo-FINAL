@@ -312,7 +312,8 @@ async def forgot_password(payload: ForgotPasswordPayload, request: Request):
     )
 
     # Respuesta idéntica con o sin usuario (anti-enumeración).
-    return ForgotPasswordResponse()
+    remaining = password_reset_limiter.remaining(email)
+    return ForgotPasswordResponse(remaining_requests=remaining)
 
 
 @router.post(

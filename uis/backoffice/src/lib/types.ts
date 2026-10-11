@@ -182,7 +182,7 @@ export interface ForgotPasswordPayload {
 
 export interface ForgotPasswordResponse {
   message: string;
-  remaining_requests: number;
+  remaining_requests?: number;
 }
 
 export interface ResetPasswordPayload {

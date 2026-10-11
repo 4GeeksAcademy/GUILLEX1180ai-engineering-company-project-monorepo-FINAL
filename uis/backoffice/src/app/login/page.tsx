@@ -156,6 +156,15 @@ export default function LoginPage() {
             {getFieldError("password") && (
               <p className="mt-1 text-xs text-red-600">{getFieldError("password")}</p>
             )}
+            {/* Recuperación de contraseña */}
+            <div className="mt-1 text-right">
+              <Link
+                href="/forgot-password"
+                className="text-xs font-medium text-tf-blue hover:text-tf-blue-dark"
+              >
+                ¿Olvidaste tu contraseña?
+              </Link>
+            </div>
           </div>
 
           {/* Submit */}
