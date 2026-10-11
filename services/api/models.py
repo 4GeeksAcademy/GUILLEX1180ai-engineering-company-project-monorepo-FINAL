@@ -47,6 +47,12 @@ from schemas.auth import (  # noqa: E402, F401
     TokenResponse,
     AuthResponse,
     UserProfileResponse,
+    # Contraseña — recuperación y cambio
+    ForgotPasswordPayload,
+    ResetPasswordPayload,
+    ChangePasswordPayload,
+    ForgotPasswordResponse,
+    PasswordChangedResponse,
 )
 
 # Suppliers

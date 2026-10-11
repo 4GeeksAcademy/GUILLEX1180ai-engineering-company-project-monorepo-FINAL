@@ -26,6 +26,19 @@ def _clean_db() -> Generator[None, None, None]:
     users_table.truncate()
     tokens_table.truncate()
 
+    # Truncar auditoría de seguridad
+    from audit_log import audit_table
+    audit_table.truncate()
+
+    # Reiniciar rate limiter de forgot-password
+    from rate_limiter import password_reset_limiter
+    password_reset_limiter.reset()
+
+    # Limpiar caché en memoria (evita datos fantasma entre tests, p.ej.
+    # un test que cachee "suppliers:list:..." y contamine un test posterior).
+    from cache import api_cache
+    api_cache.clear()
+
     # Importar y truncar tablas de suppliers e incidents
     from database import suppliers_table, incidents_table
     suppliers_table.truncate()

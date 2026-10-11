@@ -54,6 +54,63 @@ class ProfileUpdatePayload(BaseModel):
 
 
 # ═══════════════════════════════════════════════════════════
+# Contraseña — Input (Request) Schemas
+# ═══════════════════════════════════════════════════════════
+
+
+class ForgotPasswordPayload(BaseModel):
+    """Solicitud de restablecimiento: solo el email (público).
+
+    No requiere autenticación. La respuesta NUNCA revela si el email existe.
+    """
+
+    email: str = Field(..., min_length=3, max_length=120)
+
+
+class ResetPasswordPayload(BaseModel):
+    """Restablecimiento de contraseña con token JWT.
+
+    El token es de un solo uso (invalidado por `password_changed_at`).
+    """
+
+    token: str = Field(..., min_length=1)
+    new_password: str = Field(..., min_length=8, max_length=128)
+
+
+class ChangePasswordPayload(BaseModel):
+    """Cambio de contraseña para usuarios autenticados.
+
+    Requiere la contraseña actual para autorizar la operación.
+    """
+
+    current_password: str = Field(..., min_length=1)
+    new_password: str = Field(..., min_length=8, max_length=128)
+
+
+# ═══════════════════════════════════════════════════════════
+# Contraseña — Output (Response) Schemas
+# ═══════════════════════════════════════════════════════════
+
+
+class ForgotPasswordResponse(BaseModel):
+    """Respuesta genérica anti-enumeración.
+
+    Siempre devuelve el mismo mensaje, exista o no el email.
+    """
+
+    message: str = (
+        "Si la dirección está registrada, recibirás un enlace para "
+        "restablecer tu contraseña."
+    )
+
+
+class PasswordChangedResponse(BaseModel):
+    """Respuesta de confirmación de cambio/restablecimiento de contraseña."""
+
+    message: str = "Contraseña actualizada con éxito"
+
+
+# ═══════════════════════════════════════════════════════════
 # Output (Response) Schemas
 # ═══════════════════════════════════════════════════════════
 
