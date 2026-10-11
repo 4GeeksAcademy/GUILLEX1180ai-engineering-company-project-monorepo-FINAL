@@ -281,8 +281,13 @@ Recomendación: usa un **buzón real** (Gmail/Outlook) para verificar el email d
 Si quieres tests automáticos antes de cada deploy, basta un workflow que corra `pytest`:
 
 ```yaml
-name: CI
-on: [push, pull_request]
+name: CI — Tests API
+
+on:
+  push:
+    branches: [main, develop, "feature/**"]
+  pull_request:
+
 jobs:
   api-tests:
     runs-on: ubuntu-latest
@@ -292,12 +297,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
-        with: { python-version: "3.12" }
-      - run: pip install -r requirements.txt
-      - run: pytest tests/ -q
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: services/api/requirements.txt
+      - run: pip install -r requirements.txt -r requirements-dev.txt
+      - run: pytest tests/ -q --disable-warnings
 ```
 
-Se guarda en `.github/workflows/ci.yml` y se activa en `Settings → Secrets and variables → Actions` para las env vars.
+Ya está activo en `.github/workflows/ci.yml` (estado: **✅ success** en GitHub Actions).
+
+> Nota de dependencias: `bcrypt` y `PyJWT` van en `requirements.txt` (runtime);
+> `pytest` va en `requirements-dev.txt` (solo CI/desarrollo).
 
 ---
 
