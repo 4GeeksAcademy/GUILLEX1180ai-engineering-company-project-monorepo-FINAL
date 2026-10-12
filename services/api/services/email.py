@@ -76,7 +76,7 @@ def _send_via_sendgrid(to_email: str, html: str) -> None:
     """
     import httpx
 
-    from parse_email import parse_from_address  # helper local
+    from .parse_email import parse_from_address  # helper local (mismo paquete)
 
     from_name, from_address = parse_from_address(settings.sendgrid_from_email)
 

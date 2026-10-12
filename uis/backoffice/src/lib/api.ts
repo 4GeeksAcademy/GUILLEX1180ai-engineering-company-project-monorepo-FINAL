@@ -36,7 +36,21 @@ export {
   deleteSupplier,
 } from "@shared/lib/suppliers-api";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
+// URL base de la API.
+// - Si NEXT_PUBLIC_API_URL es una URL absoluta (http://host:port/api/v1) se usa
+//   tal cual (útil cuando el frontend NO pasa por un proxy).
+// - Si es relativa ("/api/v1") o está vacía, se usa la ruta relativa para que
+//   la petición viaje por el proxy de Next.js (next.config.js rewrites), lo que
+//   evita "Load failed" en Codespaces/despliegues donde `localhost` del
+//   navegador del cliente NO apunta al backend.
+const API_BASE = (process.env.NEXT_PUBLIC_API_URL ?? "").trim();
+
+function resolveApiUrl(path: string): string {
+  const relative = API_BASE.startsWith("http://") || API_BASE.startsWith("https://");
+  const base = relative ? API_BASE : API_BASE || "/api/v1";
+  const separator = base.endsWith("/") ? "" : "/";
+  return `${base}${separator}${path.replace(/^\//, "")}`;
+}
 
 /* ─── Helper genérico ─── */
 
@@ -44,7 +58,7 @@ async function fetchAPI<T>(
   path: string,
   options?: RequestInit
 ): Promise<T> {
-  const url = `${API_BASE}${path}`;
+  const url = resolveApiUrl(path);
   const res = await fetch(url, {
     headers: { "Content-Type": "application/json" },
     ...options,
@@ -207,7 +221,7 @@ async function authFetch<T>(
     throw new Error("No autenticado — redirigiendo a login");
   }
 
-  const url = `${API_BASE}${path}`;
+  const url = resolveApiUrl(path);
   const res = await fetch(url, {
     ...options,
     headers: {
