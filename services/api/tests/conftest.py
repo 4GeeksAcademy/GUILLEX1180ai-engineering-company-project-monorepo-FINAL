@@ -7,10 +7,21 @@ contaminación entre pruebas.
 
 from __future__ import annotations
 
+import os
+import tempfile
+from pathlib import Path
 from typing import Generator
 
-import pytest
-from fastapi.testclient import TestClient
+# ─── Aislamiento de la BD SQL (SQLModel) ───
+# ANTES de que cualquier test (o módulo) importe `database`/`main`, se fija
+# DATABASE_URL a un SQLite temporal. Así el lifespan (init_db → create_all)
+# y el motor de inventario NUNCA tocan Supabase durante la suite. Se usa
+# override implícito: os.environ tiene prioridad sobre load_dotenv(..., override=False).
+_TMP_SQL = Path(tempfile.mkdtemp(prefix="tf-tests-sql-"))
+os.environ["DATABASE_URL"] = f"sqlite:///{_TMP_SQL / 'test.db'}"
+
+import pytest  # noqa: E402
+from fastapi.testclient import TestClient  # noqa: E402
 
 
 @pytest.fixture(autouse=True)

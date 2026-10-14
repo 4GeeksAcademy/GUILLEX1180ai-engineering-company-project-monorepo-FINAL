@@ -6,7 +6,11 @@ authors = [
     { name = "Luis Guillermo", email = "62447867+Guillex1180@users.noreply.github.com" }
 ]
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "psycopg2-binary>=2.9.13",
+    "python-dotenv>=1.2.4",
+    "sqlmodel>=0.0.48",
+]
 
 [project.scripts]
 api = "api:main"
@@ -20,4 +24,12 @@ dev = [
     "httpx>=0.28.1",
     "pytest>=9.1.1",
     "pytest-cov>=7.1.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+filterwarnings = [
+    # SQLAlchemy 2.0: SQLModel aún emite LegacyAPIWarning en algunos paths.
+    "ignore::sqlalchemy.exc.LegacyAPIWarning",
 ]

@@ -24,7 +24,7 @@ from incidents_core import (
     validar_fila,
     calcular_metricas,
 )
-from models import AnalisisResponse, ErrorDetailAnalisis as ErrorDetail
+from schemas.incidents import AnalisisResponse, ErrorDetailAnalisis as ErrorDetail
 
 router = APIRouter(prefix="/incidents", tags=["Incidents"])
 

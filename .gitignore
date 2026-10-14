@@ -75,8 +75,11 @@ venv/
 *.jpeg
 *.gif
 *.ico
-*.svg# ─── Output generado ──────────────────────────────────────────
+*.svg
+
+# ─── Output generado / BD local ─────────────────────────────────
 results.csv
 scripts/results.csv
+db.json
 *.db.json
 *_db.json

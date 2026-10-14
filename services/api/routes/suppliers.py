@@ -15,7 +15,7 @@ from typing import Optional
 from fastapi import APIRouter, HTTPException, Query
 
 from database import suppliers_table
-from models import (
+from schemas.suppliers import (
     SupplierCreate,
     SupplierResponse,
     SupplierUpdateRate,

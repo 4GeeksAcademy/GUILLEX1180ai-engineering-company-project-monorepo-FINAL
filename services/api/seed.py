@@ -7,7 +7,7 @@ Ejecutar con: uv run seed
 from datetime import datetime, timezone
 
 from database import suppliers_table, SupplierQuery
-from models import SupplierStatus
+from schemas.enums import SupplierStatus
 
 
 # ─── Datos iniciales alineados con CONTEXT.md ───

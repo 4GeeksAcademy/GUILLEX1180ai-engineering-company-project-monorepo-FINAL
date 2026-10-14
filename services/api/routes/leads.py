@@ -20,7 +20,7 @@ from fastapi import APIRouter, HTTPException, Query
 # ─── TinyDB ───
 from tinydb import TinyDB, Query as TQuery
 
-from models import (
+from schemas.leads import (
     LeadCreate,
     LeadUpdate,
     LeadPatch,

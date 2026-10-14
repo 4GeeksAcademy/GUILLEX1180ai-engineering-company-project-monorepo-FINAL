@@ -27,7 +27,7 @@ from fastapi import APIRouter, Depends, HTTPException, Header, Request
 # ─── Tinydb ───
 from tinydb import TinyDB, Query
 
-from models import (
+from schemas.auth import (
     RegisterPayload,
     LoginPayload,
     ProfileUpdatePayload,

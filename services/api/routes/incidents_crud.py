@@ -35,12 +35,14 @@ from incidents_db import (
     delete_incident,
 )
 from cache import api_cache
-from models import (
+from schemas.enums import (
     IncidentCategory,
-    IncidentCreate,
     IncidentOrigin,
-    IncidentResponse,
     IncidentStatus,
+)
+from schemas.incidents import (
+    IncidentCreate,
+    IncidentResponse,
     IncidentSummaryResponse,
     IncidentUpdateStatus,
 )

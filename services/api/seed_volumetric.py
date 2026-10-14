@@ -16,7 +16,7 @@ import random
 from datetime import datetime, timezone, timedelta
 
 from database import incidents_table, IncidentQuery
-from models import (
+from schemas.enums import (
     IncidentCategory,
     IncidentStatus,
     IncidentOrigin,
