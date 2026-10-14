@@ -14,12 +14,26 @@ out/
 *.tsbuildinfo
 
 # ─── Environment ──────────────────────────────────────────────────
+# Todos los entornos (raíz, services/api, uis/*)
 .env
 .env.local
 .env.*.local
+.env.*.production
+.env.development
 
-# Allow .env.example files (templates)
+# Allow .env.example files (templates) — se versionan a propósito
 !.env.example
+!**/.env.example
+
+# ─── Secretos / credenciales ─────────────────────────────────────
+# Nunca subir claves ni credenciales de Firebase/Supabase/etc.
+serviceAccountKey*.json
+*.pem
+*.key
+*.p12
+*.pfx
+firebase-*.json
+google-credentials.json
 
 # ─── IDE / Editor ─────────────────────────────────────────────────
 .vscode/settings.json
@@ -51,6 +65,8 @@ __pycache__/
 env/
 venv/
 .venv/
+.pytest_cache/
+.mypy_cache/
 
 # ─── Imágenes de referencia (grandes) ─────────────────────────────
 # No subir imágenes binarias grandes usadas solo para documentación
@@ -59,8 +75,11 @@ venv/
 *.jpeg
 *.gif
 *.ico
-*.svg# ─── Output generado ──────────────────────────────────────────
+*.svg
+
+# ─── Output generado / BD local ─────────────────────────────────
 results.csv
 scripts/results.csv
+db.json
 *.db.json
 *_db.json

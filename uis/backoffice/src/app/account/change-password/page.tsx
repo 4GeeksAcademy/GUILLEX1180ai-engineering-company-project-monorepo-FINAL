@@ -47,8 +47,8 @@ export default function ChangePasswordPage() {
       setCurrentError(null);
     }
 
-    if (!newPassword || newPassword.length < 6) {
-      setNewPasswordError("La nueva contraseña debe tener al menos 6 caracteres.");
+    if (!newPassword || newPassword.length < 8) {
+      setNewPasswordError("La nueva contraseña debe tener al menos 8 caracteres.");
       valid = false;
     } else {
       setNewPasswordError(null);

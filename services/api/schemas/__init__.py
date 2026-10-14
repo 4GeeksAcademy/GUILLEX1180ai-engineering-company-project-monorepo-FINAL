@@ -22,3 +22,4 @@ from .auth import *  # noqa: F401, F403
 from .suppliers import *  # noqa: F401, F403
 from .incidents import *  # noqa: F401, F403
 from .leads import *  # noqa: F401, F403
+from .stock import *  # noqa: F401, F403

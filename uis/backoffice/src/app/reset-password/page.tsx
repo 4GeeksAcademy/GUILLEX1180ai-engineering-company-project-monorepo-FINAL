@@ -48,8 +48,8 @@ function ResetPasswordForm() {
   const validateForm = useCallback((): boolean => {
     let valid = true;
 
-    if (!newPassword || newPassword.length < 6) {
-      setPasswordError("La contraseña debe tener al menos 6 caracteres.");
+    if (!newPassword || newPassword.length < 8) {
+      setPasswordError("La contraseña debe tener al menos 8 caracteres.");
       valid = false;
     } else {
       setPasswordError(null);

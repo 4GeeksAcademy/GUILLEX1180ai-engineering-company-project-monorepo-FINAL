@@ -15,10 +15,10 @@ from uuid import uuid4
 from typing import Optional
 
 from database import incidents_table, IncidentQuery
-from models import (
+from schemas.enums import IncidentStatus
+from schemas.incidents import (
     IncidentCreate,
     IncidentResponse,
-    IncidentStatus,
 )
 
 

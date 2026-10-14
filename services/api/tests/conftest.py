@@ -7,10 +7,21 @@ contaminación entre pruebas.
 
 from __future__ import annotations
 
+import os
+import tempfile
+from pathlib import Path
 from typing import Generator
 
-import pytest
-from fastapi.testclient import TestClient
+# ─── Aislamiento de la BD SQL (SQLModel) ───
+# ANTES de que cualquier test (o módulo) importe `database`/`main`, se fija
+# DATABASE_URL a un SQLite temporal. Así el lifespan (init_db → create_all)
+# y el motor de inventario NUNCA tocan Supabase durante la suite. Se usa
+# override implícito: os.environ tiene prioridad sobre load_dotenv(..., override=False).
+_TMP_SQL = Path(tempfile.mkdtemp(prefix="tf-tests-sql-"))
+os.environ["DATABASE_URL"] = f"sqlite:///{_TMP_SQL / 'test.db'}"
+
+import pytest  # noqa: E402
+from fastapi.testclient import TestClient  # noqa: E402
 
 
 @pytest.fixture(autouse=True)
@@ -25,6 +36,19 @@ def _clean_db() -> Generator[None, None, None]:
     from routes.auth import users_table, tokens_table
     users_table.truncate()
     tokens_table.truncate()
+
+    # Truncar auditoría de seguridad
+    from audit_log import audit_table
+    audit_table.truncate()
+
+    # Reiniciar rate limiter de forgot-password
+    from rate_limiter import password_reset_limiter
+    password_reset_limiter.reset()
+
+    # Limpiar caché en memoria (evita datos fantasma entre tests, p.ej.
+    # un test que cachee "suppliers:list:..." y contamine un test posterior).
+    from cache import api_cache
+    api_cache.clear()
 
     # Importar y truncar tablas de suppliers e incidents
     from database import suppliers_table, incidents_table

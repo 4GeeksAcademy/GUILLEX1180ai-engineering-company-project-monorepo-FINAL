@@ -1,0 +1,33 @@
+# =============================================================================
+# .dockerignore del backend — evitar fugas de secretos y contextos hinchados
+# =============================================================================
+
+# Entorno y secretos (NUNCA dentro de la imagen)
+.env
+.env.*
+!.env.example
+
+# Python / venv / caché
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+
+# Dependencias y artefactos
+requirements.txt.lock
+
+# Tests (no necesarios en la imagen de producción)
+tests/
+
+# VSCode / IDE
+.vscode/
+.idea/
+
+# Git
+.git/
+.gitignore
+
+# Datos locales de la app (se generan en runtime)
+*_db.json

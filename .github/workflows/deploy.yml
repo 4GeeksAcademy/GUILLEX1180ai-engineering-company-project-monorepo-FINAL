@@ -1,0 +1,62 @@
+name: Deploy — Render + Vercel
+
+# Despliega automáticamente el módulo auth a producción cuando
+# se mergea un PR a main (o con dispatch manual desde Actions).
+#
+# 💡 Para activar este pipeline:
+#   1. Crea el servicio en Render (Blueprint con render.yaml) → el deploy
+#      ya es auto desde GitHub al hacer push a main.
+#   2. Alternativa con GitHub Actions (necesita tokens):
+#      - RENDER_TOKEN  → Settings → Secrets and variables → Actions
+#      - VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID
+#      - NEXT_PUBLIC_API_URL (URL pública del backend en Render)
+#
+# Si no configuras los tokens, Render con Blueprint sigue funcionando por
+# su integración nativa con GitHub (no requiere este workflow).
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  render-backend:
+    name: Deploy Backend → Render
+    if: ${{ secrets.RENDER_TOKEN != '' }}
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Sincronizar Blueprint con Render (servicio web + env vars)
+        uses: render-examples/render-blueprint-action@v1
+        with:
+          token: ${{ secrets.RENDER_TOKEN }}
+
+      - name: Verificar estado (health check)
+        run: |
+          sleep 60
+          curl -fsS "${{ secrets.NEXT_PUBLIC_API_URL }}/health" || \
+            curl -fsS "https://trackflow-api.onrender.com/api/v1/health" || true
+
+  vercel-frontend:
+    name: Deploy Frontend → Vercel
+    if: ${{ secrets.VERCEL_TOKEN != '' }}
+    runs-on: ubuntu-latest
+    environment: production
+    defaults:
+      run:
+        working-directory: uis/backoffice
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy a Vercel
+        uses: amondnet/vercel-action@v20
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: "--prod"
+          working-directory: uis/backoffice
+        env:
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}

@@ -1,0 +1,55 @@
+# =============================================================================
+# Render Blueprint — TrackFlow
+# https://render.com/docs/blueprint-spec
+# Permite desplegar Backend + Frontend con "New + → Blueprint" pegado de GitHub.
+# El backend usa disco EFÍMERO (TinyDB/JSON local): los datos se pierden en cada
+# redeploy. Adecuado para pruebas E2E, no para producción con datos reales.
+# =============================================================================
+
+services:
+  # ─────────────────────────── BACKEND (FastAPI) ───────────────────────────
+  - type: web
+    name: trackflow-api
+    runtime: python
+    plan: free
+    rootDir: services/api
+    healthCheckPath: /api/v1/health
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: APP_NAME
+        value: TrackFlow
+      - key: API_PREFIX
+        value: /api/v1
+      - key: JWT_SECRET_KEY
+        generateValue: true          # Render genera un secreto aleatorio fuerte
+      - key: PASSWORD_RESET_TOKEN_TTL_MINUTES
+        value: "15"
+      - key: PASSWORD_RESET_MAX_REQUESTS_PER_HOUR
+        value: "3"
+      - key: PASSWORD_RESET_WINDOW_SECONDS
+        value: "3600"
+      - key: EMAIL_PROVIDER
+        value: resend                 # cambia a "resend" cuando tengas API key real
+      - key: RESEND_API_KEY
+        sync: false                   # rellénala en el dashboard (Secret)
+      - key: RESEND_FROM_EMAIL
+        value: "TrackFlow <no-reply@trackflow.local>"
+      - key: FRONTEND_URL
+        value: "https://trackflow-backoffice.onrender.com"  # ajusta al subdominio real
+      - key: CORS_ORIGINS
+        value: "https://trackflow-backoffice.onrender.com"
+
+  # ─────────────────────────── FRONTEND (Next.js) ──────────────────────────
+  - type: web
+    name: trackflow-backoffice
+    runtime: node
+    plan: free
+    rootDir: uis/backoffice
+    buildCommand: npm install && npm run build
+    startCommand: npx next start -p $PORT
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        value: "https://trackflow-api.onrender.com/api/v1"  # URL pública del backend
+      - key: BACKEND_HOST
+        value: "trackflow-api.onrender.com"                 # para el proxy /api/v1
