@@ -46,6 +46,12 @@ export default function RootLayout({
                 >
                   Proveedores
                 </Link>
+                <Link
+                  href="/inventory/products"
+                  className="hover:text-tf-blue transition-colors"
+                >
+                  Inventario
+                </Link>
                 <span className="flex items-center gap-4 rounded-lg bg-gray-50 px-3 py-1.5">
                   <Link
                     href="/incidents"

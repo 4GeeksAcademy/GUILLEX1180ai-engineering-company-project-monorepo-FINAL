@@ -249,7 +249,7 @@ async function authFetch<T>(
   return res.json() as Promise<T>;
 }
 
-function redirectToLogin(): void {
+export function redirectToLogin(): void {
   if (typeof window !== "undefined") {
     window.location.href = "/login";
   }
